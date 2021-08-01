@@ -23,7 +23,7 @@ class SupplementsDao:
                 """
                 SELECT *
                 FROM SUPPLEMENTS
-                WHERE product_name LIKE :supplement_name
+                WHERE supplement_name LIKE :supplement_name
                 """
             ),
             {"supplement_name": "%" + supplement_name + "%"},
