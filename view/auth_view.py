@@ -1,7 +1,9 @@
 import string
 import secrets
+from functools import wraps
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response, g
+import jwt
 
 
 def create_auth_blueprint(services):
@@ -9,25 +11,92 @@ def create_auth_blueprint(services):
 
     auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+    def login_required(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            access_token = request.headers.get("Authorization")
+            if access_token:
+                access_token = access_token.replace("Bearer ", "")
+                try:
+                    payload = jwt.decode(
+                        access_token,
+                        algorithms="HS256",
+                        options={"verify_signature": False},
+                    )
+                except jwt.DecodeError:
+                    return Response(status=401)
+                user_id = payload["user_id"]
+                user_secret_key = auth_service.get_secret_key(user_id)
+                try:
+                    payload = jwt.decode(access_token, user_secret_key, "HS256")
+                except jwt.InvalidTokenError:
+                    return Response(status=401)
+                g.user_id = user_id
+            else:
+                return Response(status=401)
+            return f(*args, **kwargs)
+        return decorated_function
+
     @auth_bp.route("/signup", methods=["POST"])
     def signup():
         new_user = request.json
-        new_user_id = auth_service.create_new_user(new_user)
-        return "", 200
+        if auth_service.check_email(new_user):
+            auth_service.create_new_user(new_user)
+            return "", 200
+        else:
+            return jsonify({'message': "이메일이 존재합니다."})
 
-    @auth_bp.route("/login", methods=["POST"])
+    @auth_bp.route("/login", methods=['POST'])
     def login():
         user_info = request.json
         authorized = auth_service.login(user_info)
 
         if authorized:
-            user_id = auth_service.check_id(user_info["email"])
+            user_id = auth_service.check_id(user_info['id'])
             auth_service.insert_new_secret_key(user_id)
             secret_key = auth_service.get_secret_key(user_id)
-            token = auth_service.generate_access_token(user_id, secret_key)
+            token = auth_service.generate_access_token(
+                user_id, secret_key)
 
-            return jsonify({"access_token": token})
+            return jsonify({
+                'access_token': token
+            })
         else:
             return "", 401
 
+
+    @auth_bp.route("/generate-tmp-password", methods=['POST'])
+    def generate_tmp_pw():
+        id = request.json["id"]
+
+        string_pool = string.ascii_letters + string.digits
+        while True:
+            temp_password = ''.join(secrets.choice(string_pool) for _ in range(10))
+            if (any(c.islower() for c in temp_password) 
+                and any(c.isupper() for c in temp_password) 
+                and sum(c.isdigit() for c in temp_password) >= 3):
+                break
+        
+        auth_service.insert_temp_password(id, temp_password)
+        
+        return jsonify({'temp_password': temp_password})
+
+
+    @auth_bp.route("/reset-password", methods=['POST'])
+    def reset_password():
+        user_info = request.json
+
+        # 발급된 임시 비번 확인
+        if auth_service.check_temp_password(user_info["id"], user_info["tmpPassword"]):
+            auth_service.insert_new_password(user_info["id"], user_info["newPassword"])
+            return "", 200
+        else:
+            return jsonify({'message': '임시 비밀번호가 틀렸습니다.'})
+
+
     return auth_bp
+
+
+
+
+    

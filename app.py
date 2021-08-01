@@ -2,8 +2,8 @@ from flask import Flask
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
-from model import AuthDao, SupplementsDao
-from service import AuthService, SupplementsService
+from model import AuthDao, SupplementsDao, UserDao
+from service import AuthService, SupplementsService, UserService
 from view import create_endpoints
 
 
@@ -31,11 +31,13 @@ def create_app(test_config=None):
     # Persistence 레이어
     auth_dao = AuthDao(database)
     supplements_dao = SupplementsDao(database)
+    user_dao = UserDao(database)
 
     # Business 레이어
     services = Services
     services.auth_service = AuthService(auth_dao, app.config)
     services.supplements_service = SupplementsService(supplements_dao)
+    services.user_service = UserService(user_dao)
 
     # Presentation 레이어
     create_endpoints(app, services)
