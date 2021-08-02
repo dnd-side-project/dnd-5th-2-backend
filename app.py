@@ -2,8 +2,9 @@ from flask import Flask
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
-from model import AuthDao, SupplementsDao, UserDao
-from service import AuthService, SupplementsService, UserService
+from model import AuthDao, SupplementsDao, UserDao, ReviewsDao
+from service import AuthService, SupplementsService, UserService, ReviewsService
+
 from view import create_endpoints
 
 
@@ -32,12 +33,14 @@ def create_app(test_config=None):
     auth_dao = AuthDao(database)
     supplements_dao = SupplementsDao(database)
     user_dao = UserDao(database)
+    review_dao = ReviewsDao(database)
 
     # Business 레이어
     services = Services
     services.auth_service = AuthService(auth_dao, app.config)
     services.supplements_service = SupplementsService(supplements_dao)
     services.user_service = UserService(user_dao)
+    services.reviews_service = ReviewsService(review_dao)
 
     # Presentation 레이어
     create_endpoints(app, services)

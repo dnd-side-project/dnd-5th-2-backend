@@ -9,11 +9,12 @@
 );
 
 CREATE TABLE `REVIEWS` (
-	`user_id`	int	NOT NULL,
-	`supplement_id`	bigint	NULL,
+	`id`	int	NOT NULL,
 	`rating`	tinyint	NOT NULL,
 	`text`	text	NULL,
-	`registration_day`	date	NOT NULL
+	`registration_day`	date	NOT NULL,
+	`user_id`	int	NOT NULL,
+	`supplement_id`	bigint	NULL
 );
 
 CREATE TABLE `SUPPLEMENTS` (
@@ -21,7 +22,8 @@ CREATE TABLE `SUPPLEMENTS` (
 	`supplement_name`	varchar(255)	NOT NULL,
 	`company_name`	varchar(255)	NULL,
 	`registration_date`	varchar(255)	NULL,
-	`avg_rating`	float	NULL,
+	`avg_rating`	float	DEFAULT 0.0,
+	`rating_count`	int	DEFAULT 0,
 	`ingredient`	text	NULL,
 	`expiry_date`	varchar(255)	NULL,
 	`appearance`	text	NULL,
@@ -49,8 +51,7 @@ CREATE TABLE `WISHLIST` (
 
 CREATE TABLE `REVIEW_IMGS` (
 	`img_url`	varchar(255)	NULL,
-	`user_id`	int	NOT NULL,
-	`supplement_id`	bigint	NULL
+	`review_id`	int	NOT NULL
 );
 
 CREATE TABLE `TEMP_PW` (
@@ -79,9 +80,10 @@ ALTER TABLE `USERS` ADD CONSTRAINT `PK_USERS` PRIMARY KEY (
 ALTER TABLE `USERS` MODIFY id INT AUTO_INCREMENT;
 
 ALTER TABLE `REVIEWS` ADD CONSTRAINT `PK_REVIEWS` PRIMARY KEY (
-	`user_id`,
-	`supplement_id`
+	`id`
 );
+
+ALTER TABLE `REVIEWS` MODIFY id INT AUTO_INCREMENT;
 
 ALTER TABLE `SUPPLEMENTS` ADD CONSTRAINT `PK_SUPPLEMENTS` PRIMARY KEY (
 	`id`
@@ -103,8 +105,7 @@ ALTER TABLE `WISHLIST` ADD CONSTRAINT `PK_WISHLIST` PRIMARY KEY (
 
 ALTER TABLE `REVIEW_IMGS` ADD CONSTRAINT `PK_REVIEW_IMGS` PRIMARY KEY (
 	`img_url`,
-	`user_id`,
-	`supplement_id`
+	`review_id`
 );
 
 ALTER TABLE `TEMP_PW` ADD CONSTRAINT `PK_TEMP_PW` PRIMARY KEY (
@@ -168,17 +169,10 @@ REFERENCES `SUPPLEMENTS` (
 );
 
 ALTER TABLE `REVIEW_IMGS` ADD CONSTRAINT `FK_REVIEWS_TO_REVIEW_IMGS_1` FOREIGN KEY (
-	`user_id`
+	`review_id`
 )
 REFERENCES `REVIEWS` (
-	`user_id`
-) ON DELETE CASCADE;
-
-ALTER TABLE `REVIEW_IMGS` ADD CONSTRAINT `FK_REVIEWS_TO_REVIEW_IMGS_2` FOREIGN KEY (
-	`supplement_id`
-)
-REFERENCES `REVIEWS` (
-	`supplement_id`
+	`id`
 ) ON DELETE CASCADE;
 
 ALTER TABLE `TEMP_PW` ADD CONSTRAINT `FK_USERS_TO_TEMP_PW_1` FOREIGN KEY (
