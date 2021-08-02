@@ -1,4 +1,5 @@
 import os
+
 from datetime import date
 from flask import current_app
 
@@ -11,7 +12,7 @@ class ReviewsService:
         review_id = self.reviews_dao.get_review_id(user_id, supplement_id)
         return review_id
 
-    def get_reviews(self, user_id, supplement_id):
+    def get_reviews(self, user_id, supplement_id, page):
         # 페이지네이션 필요
         if user_id is not None and supplement_id is not None:
             review = self.reviews_dao.get_review(user_id, supplement_id)
@@ -37,9 +38,9 @@ class ReviewsService:
             return new_review
 
         elif user_id is not None:
-            reviews = self.reviews_dao.get_reviews_by_user_id(user_id)
+            reviews = self.reviews_dao.get_reviews_by_user_id(user_id, page)
         elif supplement_id is not None:
-            reviews = self.reviews_dao.get_reviews_by_supplement_id(supplement_id)
+            reviews = self.reviews_dao.get_reviews_by_supplement_id(supplement_id, page)
 
         new_reviews = []
         for review in reviews:
@@ -47,7 +48,7 @@ class ReviewsService:
             new_review["supplementId"] = review[0]
             new_review["supplementName"] = review[1]
             new_review["companyName"] = review[2]
-            new_review["ratings"] = review[3]
+            new_review["rating"] = review[3]
             new_reviews.append(new_review)
         return new_reviews
 

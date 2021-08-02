@@ -1,4 +1,5 @@
 from sqlalchemy import text
+from flask import current_app
 
 
 class ReviewsDao:
@@ -29,28 +30,38 @@ class ReviewsDao:
             {"user_id": user_id, "supplement_id": supplement_id},
         ).fetchone()
 
-    def get_reviews_by_user_id(self, user_id):
+    def get_reviews_by_user_id(self, user_id, page):
         return self.db.execute(
             text(
                 """
                     SELECT *
                     FROM REVIEWS
                     WHERE user_id = :user_id 
+                    LIMIT :PAGE_SIZE OFFSET :page
                     """
             ),
-            {"user_id": user_id},
+            {
+                "user_id": user_id,
+                "PAGE_SIZE": current_app.config["PAGE_SIZE"],
+                "page": page,
+            },
         ).fetchall()
 
-    def get_reviews_by_supplement_id(self, supplement_id):
+    def get_reviews_by_supplement_id(self, supplement_id, page):
         return self.db.execute(
             text(
                 """
-                    SELECT *
-                    FROM REVIEWS
-                    WHERE supplement_id = :supplement_id
-                    """
+                 SELECT *
+                FROM REVIEWS
+                WHERE supplement_id = :supplement_id
+                LIMIT :PAGE_SIZE OFFSET :page
+                """
             ),
-            {"supplement_id": supplement_id},
+            {
+                "supplement_id": supplement_id,
+                "PAGE_SIZE": current_app.config["PAGE_SIZE"],
+                "page": page,
+            },
         ).fetchall()
 
     def get_review_imgs(self, review_id):

@@ -43,8 +43,12 @@ def create_reviews_blueprint(services):
 
     @reviews_bp.route("", methods=["GET"])
     def review():
-        user_id = request.args.get("userId")
-        supplement_id = request.args.get("supplementId")
+        get_args = request.args.get
+        user_id = get_args("userId")
+        supplement_id = get_args("supplementId")
+        page = int(get_args("page"))
+        if get_args("page") is None:
+            page = 1
         reviews = reviews_service.get_reviews(user_id, supplement_id)
 
         if reviews is None:
