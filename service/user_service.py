@@ -6,7 +6,6 @@ class UserService:
         return self.user_dao.get_user(user_name)
 
     def edit_user(self, user_info):
-        # user_info에 user_id 있어야함
         # self.user_dao.insert_type("유형1")
         # self.user_dao.insert_type("유형2")
 
@@ -27,6 +26,15 @@ class UserService:
 
     def delete_wishlist(self, email, supplement_id):
         return self.user_dao.delete_wishlist(email, supplement_id)
+
+    def check_user_type(self, email):
+        if self.user_dao.check_user_type(email):
+            return True
+        else:
+            return False
+
+    def delete_type(self, email, type):
+        return self.user_dao.delete_type(email, type)
     
     def insert_type(self, email, type):
         return self.user_dao.insert_type(email, type)
