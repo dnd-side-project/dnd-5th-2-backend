@@ -44,21 +44,21 @@ class AuthService:
         print(authorized)
         return authorized
 
-    def generate_access_token(self, id, secret_key):
+    def generate_access_token(self, user_id, secret_key):
         payload = {     
-            'id': id
+            'user_id': user_id
         }
         token = jwt.encode(payload, secret_key, 'HS256') 
         print(f'token={token}')
         return token
 
-    def get_secret_key(self, id):
-        secret_key =  self.auth_dao.get_secret_key(id)
+    def get_secret_key(self, user_id):
+        secret_key =  self.auth_dao.get_secret_key(user_id)
         print(secret_key)
         return secret_key[0]
 
     # 로그인 시 새로 발급된 시크릿 키 삽입
-    def insert_new_secret_key(self, id):
+    def insert_new_secret_key(self, user_id):
         string_pool = string.ascii_letters + string.digits
         while True:
             secret_key = ''.join(secrets.choice(string_pool) for _ in range(10))
@@ -67,7 +67,7 @@ class AuthService:
                 and sum(c.isdigit() for c in secret_key) >= 3):
                 break
         print(secret_key)
-        return self.auth_dao.insert_new_secret_key(id, secret_key)
+        return self.auth_dao.insert_new_secret_key(user_id, secret_key)
 
     # 비밀번호 찾기 시 id 확인, 토큰 생성 시 필요한 id
     def check_id(self, email):

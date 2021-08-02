@@ -44,21 +44,21 @@ class AuthDao:
         ), {'email': email}).fetchone()
 
     # 로그인 시 새로 발급된 시크릿 키 삽입
-    def insert_new_secret_key(self, id, secret_key):
+    def insert_new_secret_key(self, user_id, secret_key):
         return self.db.execute(text(
             """
             UPDATE USERS SET secret_key = ":secret_key"
-            WHERE id=:id
+            WHERE id=:user_id
             """
-        ), {'id': id, 'secret_key': secret_key})
+        ), {'user_id': user_id, 'secret_key': secret_key})
 
-    def get_secret_key(self, id):
+    def get_secret_key(self, user_id):
         return self.db.execute(text(
             """
             SELECT secret_key FROM USERS
-            WHERE id=:id
+            WHERE id=:user_id
             """
-        ), {'id': id}).fetchone()
+        ), {'user_id': user_id}).fetchone()
 
 
     def get_id(self, email):
