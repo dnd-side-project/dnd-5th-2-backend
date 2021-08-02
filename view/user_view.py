@@ -45,8 +45,11 @@ def create_user_blueprint(services):
     @login_required
     def edit_user():
         user_info = request.json
-        user_service.edit_user(user_info)
-        return "", 200
+        if auth_service.check_username(user_info):
+            user_service.edit_user(user_info)
+            return "", 200
+        else:
+            return jsonify({'message': "중복된 닉네임입니다."})
 
     @user_bp.route("/<user_id>", methods=['GET'])
     def get_other_user(user_id):
@@ -76,8 +79,12 @@ def create_user_blueprint(services):
     @login_required
     def insert_type():
         user_info = request.json
-        user_service.insert_type(user_info["email"], user_info["type"])
+        if user_service.check_user_type(user_info["email"]):
+            user_service.delete_type(user_info["email"], user_info["type"])
+            print("삭제함")
+        type_list = user_info["type"].split(",")
+        for type in type_list:
+            user_service.insert_type(user_info["email"], type)
         return "", 200
-
 
     return user_bp
