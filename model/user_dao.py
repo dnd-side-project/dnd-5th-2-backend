@@ -28,7 +28,10 @@ class UserDao:
         self.db.execute(text(
             """
             DELETE FROM USER_TYPE
-            WHERE user_id=:id
+            WHERE (
+                (SELECT id FROM USERS
+                WHERE email=:email) = user_id
+            )
             """
         ), user_info)
 
@@ -36,8 +39,8 @@ class UserDao:
         self.db.execute(text(
             """
             UPDATE USERS 
-            SET username=:username, email=:email, gender=:gender
-            WHERE id=:id
+            SET username=:username, gender=:gender
+            WHERE email=:email
             """
         ), user_info)
 
@@ -45,7 +48,10 @@ class UserDao:
         self.db.execute(text(
             """
             INSERT INTO USER_TYPE (user_id, type_name) 
-            VALUES (:id, :type)
+            VALUES (
+                (SELECT id FROM USERS
+                WHERE email=:email), :type
+            )
             """
         ), user_info)
 
@@ -105,7 +111,29 @@ class UserDao:
             """
         ), {'email': email, 'supplement_id': supplement_id})
 
-    ############# 유형 ###############
+    ############## 유형 ###############
+    def check_user_type(self, email):
+        return self.db.execute(text(
+            """
+            SELECT user_id FROM USER_TYPE
+            WHERE (
+                (SELECT id FROM USERS
+                WHERE email=:email) = user_id
+            )
+            """
+        ), {'email': email}).fetchone()
+
+    def delete_type(self, email, type):
+        return self.db.execute(text(
+            """
+            DELETE FROM USER_TYPE
+            WHERE (
+                (SELECT id FROM USERS
+                WHERE email=:email) = user_id
+            )
+            """
+        ), {'email': email, 'type': type})
+
     def insert_type(self, email, type):
         return self.db.execute(text(
             """
