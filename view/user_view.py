@@ -36,11 +36,13 @@ def create_user_blueprint(services):
         return decorated_function
 
     @user_bp.route("/", methods=['GET'])
+    @login_required
     def get_user():
         user_name = request.args.get("username")
         return user_service.get_user(user_name)
 
     @user_bp.route("", methods=['PUT'])
+    @login_required
     def edit_user():
         user_info = request.json
         user_service.edit_user(user_info)
@@ -51,23 +53,27 @@ def create_user_blueprint(services):
         return user_service.get_other_user(user_id)
 
     @user_bp.route("/wishlist", methods=['GET'])
+    @login_required
     def get_wishlist():
         user_id = request.args.get("user_id")
         return user_service.get_wishlist(user_id)
 
     @user_bp.route("/wishlist", methods=['POST'])
+    @login_required
     def insert_wishlist():
         user_info = request.json
         user_service.insert_wishlist(user_info)
         return "", 200
 
     @user_bp.route("/wishlist", methods=['DELETE'])
+    @login_required
     def delete_wishlist():
         user_info = request.json
         user_service.delete_wishlist(user_info["email"], user_info["supplementId"])
         return "", 200
 
     @user_bp.route("/type", methods=['POST'])
+    @login_required
     def insert_type():
         user_info = request.json
         user_service.insert_type(user_info["email"], user_info["type"])

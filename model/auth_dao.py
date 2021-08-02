@@ -14,6 +14,14 @@ class AuthDao:
             """
         ), user_info).fetchone()
 
+    def check_username(self, user_info):
+        return self.db.execute(text(
+            """
+            SELECT username FROM USERS
+            WHERE username=:username
+            """
+        ), user_info).fetchone()
+
     # 회원가입 시
     def insert_user(self, new_user):
         return self.db.execute(
@@ -53,44 +61,54 @@ class AuthDao:
         ), {'id': id}).fetchone()
 
 
-    # 비밀번호 찾기 시 이메일 확인
-    def get_id(self, id):
+    def get_id(self, email):
         return self.db.execute(text(
             """
             SELECT id FROM USERS
-            WHERE id=:id
+            WHERE email=:email
             """
-        ), {'id':id}).fetchone()
+        ), {'email':email}).fetchone()
 
     # 비밀번호 찾기 시 발급받은 임시 비번 삽입
-    def insert_temp_password(self, id, temp_password):
+    def insert_temp_password(self, email, temp_password):
         return self.db.execute(text(
             """
             INSERT INTO TEMP_PW (user_id, temp_password)
             VALUES (
             (SELECT id FROM USERS 
-            WHERE USERS.id=:id), :temp_password
+            WHERE USERS.email=:email), :temp_password
             )
             """
-        ), {'id': id, 'temp_password': temp_password})
+        ), {'email': email, 'temp_password': temp_password})
 
     # 발급된 임시 비번 확인
-    def get_temp_password(self, id):
+    def get_temp_password(self, email):
         return self.db.execute(text(
             """
             SELECT temp_password FROM TEMP_PW
             WHERE (
                 (SELECT id FROM USERS
-                WHERE id=:id) = user_id
+                WHERE email=:email) = user_id
             )
             """
-        ), {"id": id}).fetchone()
+        ), {"email": email}).fetchone()
+
+    def update_temp_password(self, email, temp_password):
+        return self.db.execute(text(
+            """
+            UPDATE TEMP_PW SET temp_password=:temp_password
+            WHERE (
+                (SELECT id FROM USERS
+                WHERE email=:email) = user_id
+            )
+            """
+        ), {"email": email, "temp_password": temp_password})
 
     # 새로운 비번 삽입
-    def insert_new_password(self, id, hashed_password):
+    def insert_new_password(self, email, hashed_password):
         return self.db.execute(text(
             """
             UPDATE USERS SET hashed_password = ":hashed_password"
-            WHERE id=:id
+            WHERE email=:email
             """
-        ), {'id': id, 'hashed_password': hashed_password})
+        ), {'email': email, 'hashed_password': hashed_password})
