@@ -33,15 +33,16 @@ def create_user_blueprint(services):
             else:
                 return Response(status=401)
             return f(*args, **kwargs)
+
         return decorated_function
 
-    @user_bp.route("/", methods=['GET'])
+    @user_bp.route("/", methods=["GET"])
     @login_required
     def get_user():
         user_name = request.args.get("username")
         return user_service.get_user(user_name)
 
-    @user_bp.route("", methods=['PUT'])
+    @user_bp.route("", methods=["PUT"])
     @login_required
     def edit_user():
         user_info = request.json
@@ -49,39 +50,38 @@ def create_user_blueprint(services):
             user_service.edit_user(user_info)
             return "", 200
         else:
-            return jsonify({'message': "중복된 닉네임입니다."})
+            return jsonify({"message": "중복된 닉네임입니다."})
 
-    @user_bp.route("/<user_id>", methods=['GET'])
+    @user_bp.route("/<user_id>", methods=["GET"])
     def get_other_user(user_id):
         return user_service.get_other_user(user_id)
 
-    @user_bp.route("/wishlist", methods=['GET'])
+    @user_bp.route("/wishlist", methods=["GET"])
     @login_required
     def get_wishlist():
         user_id = request.args.get("user_id")
         return user_service.get_wishlist(user_id)
 
-    @user_bp.route("/wishlist", methods=['POST'])
+    @user_bp.route("/wishlist", methods=["POST"])
     @login_required
     def insert_wishlist():
         user_info = request.json
         user_service.insert_wishlist(user_info)
         return "", 200
 
-    @user_bp.route("/wishlist", methods=['DELETE'])
+    @user_bp.route("/wishlist", methods=["DELETE"])
     @login_required
     def delete_wishlist():
         user_info = request.json
         user_service.delete_wishlist(user_info["email"], user_info["supplementId"])
         return "", 200
 
-    @user_bp.route("/type", methods=['POST'])
+    @user_bp.route("/type", methods=["POST"])
     @login_required
     def insert_type():
         user_info = request.json
         if user_service.check_user_type(user_info["email"]):
             user_service.delete_type(user_info["email"], user_info["type"])
-            print("삭제함")
         type_list = user_info["type"].split(",")
         for type in type_list:
             user_service.insert_type(user_info["email"], type)
