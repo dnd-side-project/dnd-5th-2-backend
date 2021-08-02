@@ -15,10 +15,16 @@ def create_supplements_blueprint(services):
 
     @supplements_bp.route("/search")
     def search():
-        supplement_name = request.args.get("supplementName")
-        type = request.args.get("type")
-        tag = request.args.get("tag")
-        results = supplements_service.search_supplements(supplement_name, type, tag)
+        get_args = request.args.get
+        supplement_name = get_args("supplementName")
+        type = get_args("type")
+        tag = get_args("tag")
+        page = int(get_args("page"))
+        if page is None:
+            page = 1
+        results = supplements_service.search_supplements(
+            supplement_name, type, tag, page
+        )
         return jsonify(results)
 
     return supplements_bp
