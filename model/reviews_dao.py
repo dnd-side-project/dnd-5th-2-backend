@@ -29,6 +29,30 @@ class ReviewsDao:
             {"user_id": user_id, "supplement_id": supplement_id},
         ).fetchone()
 
+    def get_reviews_by_user_id(self, user_id):
+        return self.db.execute(
+            text(
+                """
+                    SELECT *
+                    FROM REVIEWS
+                    WHERE user_id = :user_id 
+                    """
+            ),
+            {"user_id": user_id},
+        ).fetchall()
+
+    def get_reviews_by_supplement_id(self, supplement_id):
+        return self.db.execute(
+            text(
+                """
+                    SELECT *
+                    FROM REVIEWS
+                    WHERE supplement_id = :supplement_id
+                    """
+            ),
+            {"supplement_id": supplement_id},
+        ).fetchall()
+
     def get_review_imgs(self, review_id):
         return self.db.execute(
             text(
