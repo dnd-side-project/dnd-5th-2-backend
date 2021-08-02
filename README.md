@@ -8,7 +8,7 @@ DnD 5기 2조 백엔드 레포지토리
 
 ```bash
 $ python3 -m venv virtualenv
-$ pip install -r requriements.txt
+$ pip install -r requirements.txt
 ```
 
 -   환경변수 설정
