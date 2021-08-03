@@ -15,16 +15,18 @@ class SupplementsService:
         info_dict["ratings"] = info[3]
         return info_dict
 
-    def search_supplements(self, supplement_name, type, tag):
+    def search_supplements(self, supplement_name, type, tag, page):
         # 페이지네이션 필요
         if supplement_name is not None:
-            results = self.supplements_dao.search_supplements_by_name(supplement_name)
+            results = self.supplements_dao.search_supplements_by_name(
+                supplement_name, page
+            )
         elif type is not None:
             tags = {}
             tags = [tag[0] for tag in self.supplements_dao.get_type_tags(type)]
-            results = self.supplements_dao.search_supplements_by_tags(tags)
+            results = self.supplements_dao.search_supplements_by_tags(tags, page)
         elif tag is not None:
-            results = self.supplements_dao.search_supplements_by_tag(tag)
+            results = self.supplements_dao.search_supplements_by_tag(tag, page)
 
         new_results = []
         for result in results:
