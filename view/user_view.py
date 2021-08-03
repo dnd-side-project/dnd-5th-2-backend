@@ -46,21 +46,26 @@ def create_user_blueprint(services):
     @login_required
     def edit_user():
         user_info = request.json
-        if auth_service.check_username(user_info):
+        if auth_service.check_username(user_info) is not None:
+            return jsonify({"message": "중복된 닉네임입니다."})
+        else:
             user_service.edit_user(user_info)
             return "", 200
-        else:
-            return jsonify({"message": "중복된 닉네임입니다."})
 
-    @user_bp.route("/<user_id>", methods=["GET"])
-    def get_other_user(user_id):
-        return user_service.get_other_user(user_id)
+    @user_bp.route("/<username>", methods=["GET"])
+    def get_other_user(username):
+        return user_service.get_other_user(username)
 
     @user_bp.route("/wishlist", methods=["GET"])
     @login_required
     def get_wishlist():
-        user_id = request.args.get("user_id")
-        return user_service.get_wishlist(user_id)
+        email = request.args.get("email")
+        user_wishlist = user_service.get_wishlist(email)
+        if user_wishlist is not None:
+            return user_wishlist
+        else:
+            return jsonify({"messsage": "찜한 상품이 없습니다."})
+
 
     @user_bp.route("/wishlist", methods=["POST"])
     @login_required
@@ -73,18 +78,18 @@ def create_user_blueprint(services):
     @login_required
     def delete_wishlist():
         user_info = request.json
-        user_service.delete_wishlist(user_info["email"], user_info["supplementId"])
+        user_service.delete_wishlist(user_info)
         return "", 200
 
     @user_bp.route("/type", methods=["POST"])
     @login_required
     def insert_type():
         user_info = request.json
-        if user_service.check_user_type(user_info["email"]):
-            user_service.delete_type(user_info["email"], user_info["type"])
+        if user_service.check_user_type(user_info) is not None:
+            user_service.delete_type(user_info)
         type_list = user_info["type"].split(",")
-        for type in type_list:
-            user_service.insert_type(user_info["email"], type)
+        for user_type in type_list:
+            user_service.insert_type(user_info["email"], user_type)
         return "", 200
 
     return user_bp
