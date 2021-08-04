@@ -62,13 +62,13 @@ class UserDao:
     def get_wishlist(self, email):
         return self.db.execute(text(
             """
-            SELECT w.suppliment_id, s.product_name, 
+            SELECT w.supplement_id, s.supplement_name, 
                 s.company_name, s.appearance, s.avg_rating
             FROM 
                 USERS AS u RIGHT OUTER JOIN WISHLIST AS w
                     ON u.id = w.user_id
                 LEFT OUTER JOIN SUPPLEMENTS AS s
-                    ON s.id = w.suppliment_id
+                    ON s.id = w.supplement_id
             WHERE u.email=:email
             """
         ), {'email': email}).fetchall()
@@ -76,7 +76,7 @@ class UserDao:
     def insert_wishlist(self, email, supplement_id):
         self.db.execute(text(
             """
-            INSERT INTO WISHLIST (user_id, suppliment_id)
+            INSERT INTO WISHLIST (user_id, supplement_id)
             VALUES (
                 (SELECT id FROM USERS
                 WHERE email=:email), :supplement_id
@@ -89,7 +89,7 @@ class UserDao:
             """
             DELETE FROM WISHLIST 
             WHERE (user_id=(SELECT id FROM USERS WHERE email=:email)
-                AND suppliment_id=:supplement_id
+                AND supplement_id=:supplement_id
             )
             """
         ), {'email': email, 'supplement_id': supplement_id})
