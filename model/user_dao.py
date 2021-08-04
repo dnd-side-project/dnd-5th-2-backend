@@ -8,44 +8,13 @@ class UserDao:
     def get_user(self, user_name):
         return self.db.execute(text(
             """
-            SELECT username, email, gender, USER_TYPE.type_name
+            SELECT username, email, gender, age, USER_TYPE.type_name
             FROM USERS
             LEFT OUTER JOIN USER_TYPE
             ON USERS.id = USER_TYPE.user_id
             WHERE USERS.username=:user_name
             """
         ), {'user_name': user_name}).fetchone()
-
-    def delete_type(self, user_info):
-        self.db.execute(text(
-            """
-            DELETE FROM USER_TYPE
-            WHERE (
-                (SELECT id FROM USERS
-                WHERE email=:email) = user_id
-            )
-            """
-        ), user_info)
-
-    def edit_user(self, user_info):
-        self.db.execute(text(
-            """
-            UPDATE USERS 
-            SET username=:username, gender=:gender
-            WHERE email=:email
-            """
-        ), user_info)
-
-    def edit_type(self, user_info):
-        self.db.execute(text(
-            """
-            INSERT INTO USER_TYPE (user_id, type_name) 
-            VALUES (
-                (SELECT id FROM USERS
-                WHERE email=:email), :type
-            )
-            """
-        ), user_info)
 
     def get_other_user(self, username):
         return self.db.execute(text(
@@ -121,7 +90,7 @@ class UserDao:
         self.db.execute(text(
             """
             UPDATE USERS
-            SET username=:username, gender=:gender
+            SET username=:username, gender=:gender, age=:age
             WHERE email=:email
             """
         ), user_info)

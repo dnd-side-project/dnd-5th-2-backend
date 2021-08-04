@@ -1,9 +1,16 @@
 import string
 import secrets
 from functools import wraps
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from flask import Blueprint, request, jsonify, Response, g
 import jwt
+
+import mail
+
 
 
 def create_auth_blueprint(services):
@@ -73,10 +80,9 @@ def create_auth_blueprint(services):
 
 
     @auth_bp.route("/generate-tmp-password", methods=['POST'])
-    @login_required
+
     def generate_tmp_pw():
         email = request.json["email"]
-
         various_s = string.ascii_letters + string.digits
         while True:
             temp_password = ''.join(secrets.choice(various_s) for _ in range(10))
@@ -91,6 +97,7 @@ def create_auth_blueprint(services):
         else:
             auth_service.insert_temp_password(email, temp_password)
         
+        mail.send_mail(email, temp_password, None)
         return jsonify({'temp_password': temp_password})
 
 
