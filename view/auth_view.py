@@ -15,6 +15,7 @@ import mail
 
 def create_auth_blueprint(services):
     auth_service = services.auth_service
+    user_service = services.user_service
 
     auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -54,7 +55,8 @@ def create_auth_blueprint(services):
                 return jsonify({'message': "중복된 닉네임입니다."})
             else:
                 auth_service.create_new_user(new_user)
-                return "", 200
+                user_info = user_service.get_user(new_user["username"])
+                return user_info
 
     @auth_bp.route("/login", methods=['POST'])
     def login():
