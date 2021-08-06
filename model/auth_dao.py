@@ -28,7 +28,7 @@ class AuthDao:
             text(
                 """
                 INSERT INTO USERS (email, username, gender, age, hashed_password)
-                VALUES (:email, :username, :gender,:age, :password)
+                VALUES (:email, :username, :gender, :age, :password)
                 """
             ),
             new_user)

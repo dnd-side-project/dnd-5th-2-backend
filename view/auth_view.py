@@ -82,7 +82,7 @@ def create_auth_blueprint(services):
 
 
     @auth_bp.route("/generate-tmp-password", methods=['POST'])
-
+    @login_required
     def generate_tmp_pw():
         email = request.json["email"]
         various_s = string.ascii_letters + string.digits
@@ -99,7 +99,7 @@ def create_auth_blueprint(services):
         else:
             auth_service.insert_temp_password(email, temp_password)
         
-        mail.send_mail(email, temp_password, None)
+        mail.send_mail(email, temp_password)
         return jsonify({'temp_password': temp_password})
 
 
