@@ -1,13 +1,21 @@
 import string
 import secrets
 from functools import wraps
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from flask import Blueprint, request, jsonify, Response, g
 import jwt
 
+import mail
+
+
 
 def create_auth_blueprint(services):
     auth_service = services.auth_service
+    user_service = services.user_service
 
     auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -40,21 +48,20 @@ def create_auth_blueprint(services):
     @auth_bp.route("/signup", methods=["POST"])
     def signup():
         new_user = request.json
-        if auth_service.check_email(new_user):
-            if auth_service.check_username(new_user):
-                auth_service.create_new_user(new_user)
-                return "", 200
-            else:
-                return jsonify({'message': "중복된 닉네임입니다."})
-        else:
+        if auth_service.check_email(new_user) is not None:
             return jsonify({'message': "이메일이 존재합니다."})
+        else:
+            if auth_service.check_username(new_user) is not None:
+                return jsonify({'message': "중복된 닉네임입니다."})
+            else:
+                auth_service.create_new_user(new_user)
+                user_info = user_service.get_user(new_user["username"])
+                return user_info
 
     @auth_bp.route("/login", methods=['POST'])
     def login():
         user_info = request.json
-        if auth_service.check_email(user_info):
-            return jsonify({"message": "존재하지 않는 이메일 입니다."})
-        else:
+        if auth_service.check_email(user_info) is not None:
             authorized = auth_service.login(user_info)
 
             if authorized:
@@ -69,26 +76,30 @@ def create_auth_blueprint(services):
                 })
             else:
                 return "", 401
+        else:
+            return jsonify({"message": "존재하지 않는 이메일 입니다."})
+            
 
 
     @auth_bp.route("/generate-tmp-password", methods=['POST'])
-    @login_required
+
     def generate_tmp_pw():
         email = request.json["email"]
-
-        string_pool = string.ascii_letters + string.digits
+        various_s = string.ascii_letters + string.digits
         while True:
-            temp_password = ''.join(secrets.choice(string_pool) for _ in range(10))
+            temp_password = ''.join(secrets.choice(various_s) for _ in range(10))
+
             if (any(c.islower() for c in temp_password) 
                 and any(c.isupper() for c in temp_password) 
                 and sum(c.isdigit() for c in temp_password) >= 3):
                 break
         
-        if auth_service.check_having_temp_password(email):
+        if auth_service.check_having_temp_password(email) is not None:
             auth_service.update_temp_password(email, temp_password)
         else:
             auth_service.insert_temp_password(email, temp_password)
         
+        mail.send_mail(email, temp_password, None)
         return jsonify({'temp_password': temp_password})
 
 
@@ -103,7 +114,6 @@ def create_auth_blueprint(services):
             return "", 200
         else:
             return jsonify({'message': '임시 비밀번호가 틀렸습니다.'})
-
 
     return auth_bp
 

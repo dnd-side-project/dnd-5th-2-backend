@@ -3,38 +3,55 @@ class UserService:
         self.user_dao = user_dao
 
     def get_user(self, user_name):
-        return self.user_dao.get_user(user_name)
+        user_info = self.user_dao.get_user(user_name)
+        user_info = user_info._asdict()
+        return user_info
 
     def edit_user(self, user_info):
-        # self.user_dao.insert_type("유형1")
-        # self.user_dao.insert_type("유형2")
-
         self.user_dao.delete_type(user_info)
         self.user_dao.edit_user(user_info)
         self.user_dao.edit_type(user_info)
 
-    def get_other_user(self, user_id):
-        return self.user_dao.get_other_user(user_id)
+    def get_other_user(self, username):
+        other_user_info = self.user_dao.get_other_user(username)
+        other_user_info = other_user_info._asdict()
+        return other_user_info
 
-    def get_wishlist(self, user_id):
-        return self.user_dao.get_wishlist(user_id)
+    def get_wishlist(self, email):
+        user_wishlist = self.user_dao.get_wishlist(email)
+        if user_wishlist:
+            wish_result = {}
+            i = 0
+            for item in user_wishlist:
+                i += 1
+                wish_dict = {}
+                wish_dict["supplementId"] = item[0]
+                wish_dict["supplementName"] = item[1]
+                wish_dict["companyName"] = item[2]
+                wish_dict["appearance"] = item[3]
+                wish_dict["avgRating"] = item[4]
+                wish_result[i] = wish_dict
+            return wish_result
+        else:
+            return None
 
     def insert_wishlist(self, user_info):
-        # self.user_dao.insert_supplement_id("1", "영양제")
-        return self.user_dao.insert_wishlist(
+        self.user_dao.insert_wishlist(
             user_info["email"], user_info["supplementId"])
 
-    def delete_wishlist(self, email, supplement_id):
-        return self.user_dao.delete_wishlist(email, supplement_id)
+    def delete_wishlist(self, user_info):
+        self.user_dao.delete_wishlist(
+            user_info["email"], user_info["supplementId"])
 
-    def check_user_type(self, email):
-        if self.user_dao.check_user_type(email):
-            return True
+    def check_user_type(self, user_info):
+        check_user_type = self.user_dao.check_user_type(user_info)
+        if check_user_type:
+            return check_user_type
         else:
-            return False
+            return None
 
-    def delete_type(self, email, type):
-        return self.user_dao.delete_type(email, type)
+    def delete_type(self, user_info):
+        self.user_dao.delete_type(user_info)
     
-    def insert_type(self, email, type):
-        return self.user_dao.insert_type(email, type)
+    def insert_type(self, email, user_type):
+        self.user_dao.insert_type(email, user_type)

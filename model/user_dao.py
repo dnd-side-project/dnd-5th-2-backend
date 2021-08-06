@@ -8,7 +8,7 @@ class UserDao:
     def get_user(self, user_name):
         return self.db.execute(text(
             """
-            SELECT username, email, gender, USER_TYPE.type_name
+            SELECT username, email, gender, age, USER_TYPE.type_name
             FROM USERS
             LEFT OUTER JOIN USER_TYPE
             ON USERS.id = USER_TYPE.user_id
@@ -16,13 +16,64 @@ class UserDao:
             """
         ), {'user_name': user_name}).fetchone()
 
-    # def insert_type(self, type):
-    #     self.db.execute(text(
-    #         """
-    #         INSERT INTO TYPES (name)
-    #         VALUES (:type)
-    #         """
-    #     ), {'type': type})
+    def get_other_user(self, username):
+        return self.db.execute(text(
+            """
+            SELECT username, USER_TYPE.type_name
+            FROM USERS
+            LEFT OUTER JOIN USER_TYPE
+            ON USERS.id = USER_TYPE.user_id
+            WHERE USERS.username=:username
+            """
+        ), {'username': username}).fetchone()
+
+    ################ 위시리스트 ################
+    def get_wishlist(self, email):
+        return self.db.execute(text(
+            """
+            SELECT w.supplement_id, s.supplement_name, 
+                s.company_name, s.appearance, s.avg_rating
+            FROM 
+                USERS AS u RIGHT OUTER JOIN WISHLIST AS w
+                    ON u.id = w.user_id
+                LEFT OUTER JOIN SUPPLEMENTS AS s
+                    ON s.id = w.supplement_id
+            WHERE u.email=:email
+            """
+        ), {'email': email}).fetchall()
+
+    def insert_wishlist(self, email, supplement_id):
+        self.db.execute(text(
+            """
+            INSERT INTO WISHLIST (user_id, supplement_id)
+            VALUES (
+                (SELECT id FROM USERS
+                WHERE email=:email), :supplement_id
+            )
+            """
+        ), {'email': email, 'supplement_id': supplement_id})
+
+    def delete_wishlist(self, email, supplement_id):
+        self.db.execute(text(
+            """
+            DELETE FROM WISHLIST 
+            WHERE (user_id=(SELECT id FROM USERS WHERE email=:email)
+                AND supplement_id=:supplement_id
+            )
+            """
+        ), {'email': email, 'supplement_id': supplement_id})
+
+    ################ 유형 #################
+    def check_user_type(self, user_info):
+        return self.db.execute(text(
+            """
+            SELECT user_id FROM USER_TYPE
+            WHERE (
+                (SELECT id FROM USERS
+                WHERE email=:email) = user_id
+            )
+            """
+        ), user_info).fetchone()
 
     def delete_type(self, user_info):
         self.db.execute(text(
@@ -38,8 +89,8 @@ class UserDao:
     def edit_user(self, user_info):
         self.db.execute(text(
             """
-            UPDATE USERS 
-            SET username=:username, gender=:gender
+            UPDATE USERS
+            SET username=:username, gender=:gender, age=:age
             WHERE email=:email
             """
         ), user_info)
@@ -55,92 +106,13 @@ class UserDao:
             """
         ), user_info)
 
-    def get_other_user(self, user_id):
-        return self.db.execute(text(
-            """
-            SELECT username, USER_TYPE.type_name
-            FROM USERS
-            LEFT OUTER JOIN USER_TYPE
-            ON USERS.id = USER_TYPE.user_id
-            WHERE USERS.id=:user_id
-            """
-        ), {'user_id': user_id}).fetchone()
-
-    ################ 위시리스트 ################
-
-    # 무조건 user_id가 매개변수여야 함
-    def get_wishlist(self, user_id):
-        return self.db.execute(text(
-            """
-            SELECT s.supplement_name, w.supplement_id
-            FROM 
-                SUPPLEMENTS AS s LEFT OUTER JOIN WISHLIST AS w
-                    ON s.id = w.supplement_id
-                LEFT OUTER JOIN USERS AS u
-                    ON w.user_id = u.id
-            WHERE u.id=:user_id
-            """
-        ), {'user_id': user_id}).fetchall()
-
-    # def insert_supplement_id(self, supplement_id, supplement):
-    #     self.db.execute(text(
-    #         """
-    #         INSERT INTO SUPPLEMENTS (id, product_name)
-    #         VALUES (:supplement_id, :supplement)
-    #         """
-    #     ), {'id': supplement_id, 'supplement': supplement})
-
-    def insert_wishlist(self, email, supplement_id):
-        return self.db.execute(text(
-            """
-            INSERT INTO WISHLIST (user_id, supplement_id)
-            VALUES (
-                (SELECT id FROM USERS
-                WHERE email=:email), :supplement_id
-            )
-            """
-        ), {'email': email, 'supplement_id': supplement_id})
-
-    def delete_wishlist(self, email, supplement_id):
-        return self.db.execute(text(
-            """
-            DELETE FROM WISHLIST 
-            WHERE (user_id=(SELECT id FROM USERS WHERE email=:email)
-                AND supplement_id=:supplement_id
-            )
-            """
-        ), {'email': email, 'supplement_id': supplement_id})
-
-    ############## 유형 ###############
-    def check_user_type(self, email):
-        return self.db.execute(text(
-            """
-            SELECT user_id FROM USER_TYPE
-            WHERE (
-                (SELECT id FROM USERS
-                WHERE email=:email) = user_id
-            )
-            """
-        ), {'email': email}).fetchone()
-
-    def delete_type(self, email, type):
-        return self.db.execute(text(
-            """
-            DELETE FROM USER_TYPE
-            WHERE (
-                (SELECT id FROM USERS
-                WHERE email=:email) = user_id
-            )
-            """
-        ), {'email': email, 'type': type})
-
-    def insert_type(self, email, type):
-        return self.db.execute(text(
+    def insert_type(self, email, user_type):
+        self.db.execute(text(
             """
             INSERT INTO USER_TYPE (user_id, type_name)
             VALUES (
                 (SELECT id FROM USERS
-                WHERE email=:email), :type
+                WHERE email=:email), :user_type
             );
             """
-        ), {'email': email, 'type': type})
+        ), {'email': email,'user_type': user_type})
