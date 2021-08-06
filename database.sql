@@ -5,7 +5,8 @@
 	`email`	varchar(255)	NOT NULL,
 	`secret_key`	varchar(255)	NULL,
 	`gender`	varchar(255)	NULL,
-	`avg_rating`	float	NULL
+	`avg_rating`	float	NULL,
+	`age`	tinyint	NULL
 );
 
 CREATE TABLE `REVIEWS` (
@@ -22,8 +23,8 @@ CREATE TABLE `SUPPLEMENTS` (
 	`supplement_name`	varchar(255)	NOT NULL,
 	`company_name`	varchar(255)	NULL,
 	`registration_date`	varchar(255)	NULL,
-	`avg_rating`	float	DEFAULT 0.0,
-	`rating_count`	int	DEFAULT 0,
+	`avg_rating`	float	NULL	DEFAULT 0.0,
+	`rating_count`	int	NULL	DEFAULT 0,
 	`ingredient`	text	NULL,
 	`expiry_date`	varchar(255)	NULL,
 	`appearance`	text	NULL,
@@ -32,7 +33,8 @@ CREATE TABLE `SUPPLEMENTS` (
 	`storage_standard`	text	NULL,
 	`ingest_precaution`	text	NULL,
 	`effect`	text	NULL,
-	`standard`	text	NULL
+	`standard`	text	NULL,
+	`img_url`	varchar(255)	NULL
 );
 
 CREATE TABLE `TYPES` (
@@ -166,7 +168,7 @@ ALTER TABLE `WISHLIST` ADD CONSTRAINT `FK_SUPPLEMENTS_TO_WISHLIST_1` FOREIGN KEY
 )
 REFERENCES `SUPPLEMENTS` (
 	`id`
-);
+) ON DELETE CASCADE;
 
 ALTER TABLE `REVIEW_IMGS` ADD CONSTRAINT `FK_REVIEWS_TO_REVIEW_IMGS_1` FOREIGN KEY (
 	`review_id`
