@@ -27,6 +27,8 @@ def create_reviews_blueprint(services):
 
                 user_id = payload["user_id"]
                 user_secret_key = auth_service.get_secret_key(user_id)
+                if user_secret_key is None:
+                    return Response(status=401)
 
                 try:
                     payload = jwt.decode(access_token, user_secret_key, "HS256")
