@@ -20,11 +20,12 @@ def create_app(test_config=None):
     어플리케이션 팩토리 패턴으로 Flask 앱을 생성.
     Data Assess Object, Service, View로 구성된 3 티어 아키텍쳐 패턴 구현
     """
-    # 환경 변수 설정
+    # 환경 변수 파일 불러오기
     load_dotenv()
 
     app = Flask(__name__)
 
+    # 설정 적용
     if test_config is None:
         app.config.from_envvar("APP_CONFIG_FILE")
     else:

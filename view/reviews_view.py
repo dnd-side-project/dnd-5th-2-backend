@@ -48,10 +48,25 @@ def create_reviews_blueprint(services):
         get_args = request.args.get
         user_id = get_args("userId")
         supplement_id = get_args("supplementId")
-        page = int(get_args("page"))
-        if get_args("page") is None:
+        page = get_args("page")
+
+        if user_id is not None and not user_id.isnumeric():
+            return "잘못된 사용자 ID 입니다", 400
+        if supplement_id is not None and not supplement_id.isnumeric():
+            return "잘못된 영양제 ID 입니다", 400
+        if page is not None and page.isnumeric() is False:
+            return "잘못된 페이지 숫자 입니다", 400
+
+        if user_id is not None:
+            user_id = int(user_id)
+        if supplement_id is not None:
+            supplement_id = int(supplement_id)
+        if page is not None:
+            page = int(page)
+        else:
             page = 1
-        reviews = reviews_service.get_reviews(user_id, supplement_id)
+
+        reviews = reviews_service.get_reviews(user_id, supplement_id, page)
 
         if reviews is None:
             return "리뷰가 존재하지 않습니다", 404
@@ -107,7 +122,8 @@ def create_reviews_blueprint(services):
         payload = request.json
         user_id = g.user_id
         supplement_id = payload["supplementId"]
-        review = reviews_service.get_reviews(user_id, supplement_id)
+        page = 1
+        review = reviews_service.get_reviews(user_id, supplement_id, page)
 
         if review is None:
             return "존재하지 않는 리뷰입니다", 404
