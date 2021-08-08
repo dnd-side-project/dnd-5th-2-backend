@@ -48,6 +48,8 @@ class AuthService:
 
     def get_secret_key(self, user_id):
         user_secret_key = self.auth_dao.get_secret_key(user_id)
+        if user_secret_key is None:
+            return None
         return user_secret_key["secret_key"]
 
     # 로그인 시 새로 발급된 시크릿 키 삽입

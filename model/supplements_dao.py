@@ -6,7 +6,7 @@ class SupplementsDao:
     def __init__(self, database):
         self.db = database
 
-    def get_supplement_info(self, supplement_id):
+    def get(self, supplement_id):
         return self.db.execute(
             text(
                 """
@@ -18,7 +18,7 @@ class SupplementsDao:
             {"supplement_id": supplement_id},
         ).fetchone()
 
-    def search_supplements_by_name(self, supplement_name, page):
+    def search_by_name(self, supplement_name, page):
         return self.db.execute(
             text(
                 """
@@ -35,21 +35,7 @@ class SupplementsDao:
             },
         ).fetchall()
 
-    def get_type_tags(self, type):
-        return self.db.execute(
-            text(
-                """
-                SELECT tag_name
-                FROM TYPE_TAG
-                RIGHT JOIN TYPES
-                ON TYPE_TAG.type_name = TYPES.name
-                WHERE type_name = :type
-                """
-            ),
-            {"type": type},
-        ).fetchall()
-
-    def search_supplements_by_tag(self, tag, page):
+    def search_by_tag(self, tag, page):
         return self.db.execute(
             text(
                 """
@@ -68,7 +54,7 @@ class SupplementsDao:
             },
         ).fetchall()
 
-    def search_supplements_by_tags(self, tags, page):
+    def search_by_tags(self, tags, page):
         tags_string = ""
         for i in range(len(tags)):
             tags_string += '"' + tags[i] + '"'
@@ -96,3 +82,41 @@ class SupplementsDao:
                 "page": page,
             },
         ).fetchall()
+
+    def get_type_tags(self, type):
+        return self.db.execute(
+            text(
+                """
+                SELECT tag_name
+                FROM TYPE_TAG
+                RIGHT JOIN TYPES
+                ON TYPE_TAG.type_name = TYPES.name
+                WHERE type_name = :type
+                """
+            ),
+            {"type": type},
+        ).fetchall()
+
+    def get_type(self, type):
+        return self.db.execute(
+            text(
+                """
+                SELECT *
+                FROM TYPES
+                WHERE name = :type
+                """
+            ),
+            {"type": type},
+        ).fetchone()
+
+    def get_tag(self, tag):
+        return self.db.execute(
+            text(
+                """
+                SELECT *
+                FROM TAGS
+                WHERE name = :tag
+                """
+            ),
+            {"tag": tag},
+        ).fetchone()
