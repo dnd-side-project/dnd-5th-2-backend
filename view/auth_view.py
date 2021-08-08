@@ -49,10 +49,10 @@ def create_auth_blueprint(services):
     def signup():
         new_user = request.json
         if auth_service.check_email(new_user) is not None:
-            return jsonify({'message': "이메일이 존재합니다."})
+            return jsonify({'message': "이메일이 존재합니다."}), 409
         else:
             if auth_service.check_username(new_user) is not None:
-                return jsonify({'message': "중복된 닉네임입니다."})
+                return jsonify({'message': "중복된 닉네임입니다."}), 409
             else:
                 auth_service.create_new_user(new_user)
                 user_info = user_service.get_user(new_user["username"])
@@ -75,9 +75,9 @@ def create_auth_blueprint(services):
                     'access_token': token
                 })
             else:
-                return "", 401
+                return jsonify({"message": "비밀번호가 틀렸습니다."}), 403
         else:
-            return jsonify({"message": "존재하지 않는 이메일 입니다."})
+            return jsonify({"message": "존재하지 않는 이메일 입니다."}), 404
             
 
 
@@ -100,7 +100,7 @@ def create_auth_blueprint(services):
             auth_service.insert_temp_password(email, temp_password)
         
         mail.send_mail(email, temp_password)
-        return jsonify({'temp_password': temp_password})
+        return jsonify({"message": "임시 비밀번호가 전송되었습니다."})
 
 
     @auth_bp.route("/reset-password", methods=['POST'])
@@ -111,9 +111,9 @@ def create_auth_blueprint(services):
         # 발급된 임시 비번 확인
         if auth_service.check_temp_password(user_info["email"], user_info["tmpPassword"]):
             auth_service.insert_new_password(user_info["email"], user_info["newPassword"])
-            return "", 200
+            return jsonify({"message": "비밀번호가 변경되었습니다."})
         else:
-            return jsonify({'message': '임시 비밀번호가 틀렸습니다.'})
+            return jsonify({"message": "임시 비밀번호가 틀렸습니다."}), 403
 
     return auth_bp
 

@@ -50,7 +50,7 @@ def create_user_blueprint(services):
             return jsonify({"message": "중복된 닉네임입니다."})
         else:
             user_service.edit_user(user_info)
-            return "", 200
+            return jsonify({"message": "정보가 수정되었습니다."})
 
     @user_bp.route("/<username>", methods=["GET"])
     def get_other_user(username):
@@ -79,7 +79,7 @@ def create_user_blueprint(services):
     def delete_wishlist():
         user_info = request.json
         user_service.delete_wishlist(user_info)
-        return "", 200
+        return jsonify({"message": "삭제되었습니다."})
 
     @user_bp.route("/type", methods=["POST"])
     @login_required
