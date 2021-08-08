@@ -34,16 +34,16 @@ class ReviewsDao:
         return self.db.execute(
             text(
                 """
-                    SELECT *
-                    FROM REVIEWS
-                    WHERE user_id = :user_id 
-                    LIMIT :PAGE_SIZE OFFSET :page
-                    """
+                SELECT *
+                FROM REVIEWS
+                WHERE user_id = :user_id 
+                LIMIT :PAGE_SIZE OFFSET :page
+                 """
             ),
             {
                 "user_id": user_id,
                 "PAGE_SIZE": current_app.config["PAGE_SIZE"],
-                "page": page,
+                "page": page - 1,
             },
         ).fetchall()
 
@@ -60,7 +60,7 @@ class ReviewsDao:
             {
                 "supplement_id": supplement_id,
                 "PAGE_SIZE": current_app.config["PAGE_SIZE"],
-                "page": page,
+                "page": page - 1,
             },
         ).fetchall()
 
@@ -156,3 +156,15 @@ class ReviewsDao:
             ),
             {"review_id": review_id, "img_url": img_url},
         )
+
+    def get_user_avg_rating(self, user_id):
+        return self.db.execute(
+            text(
+                """
+                SELECT *
+                FROM USERS
+                WHERE id = :user_id
+                """
+            ),
+            {"user_id": user_id},
+        ).fetchone()["avg_rating"]

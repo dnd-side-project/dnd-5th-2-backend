@@ -3,6 +3,8 @@ import os
 from datetime import date
 from flask import current_app
 
+from .utils import to_camel_dict
+
 
 class ReviewsService:
     def __init__(self, reviews_dao):
@@ -13,42 +15,62 @@ class ReviewsService:
         return review_id
 
     def get_reviews(self, user_id, supplement_id, page):
-        # 페이지네이션 필요
         if user_id is not None and supplement_id is not None:
-            review = self.reviews_dao.get_review(user_id, supplement_id)
-
-            if review is None:
-                return None
-
-            review = review._asdict()
-            review_imgs = self.reviews_dao.get_review_imgs(review["id"])
-
-            new_review = {}
-            new_review_imgs = []
-            for review_img in review_imgs:
-                new_review_imgs.append(review_img._asdict()["img_url"])
-
-            new_review["imgUrls"] = new_review_imgs
-            new_review["reviewId"] = review["id"]
-            new_review["supplementId"] = review["supplement_id"]
-            new_review["userId"] = review["user_id"]
-            new_review["rating"] = review["rating"]
-            new_review["text"] = review["text"]
-            new_review["registrationDay"] = review["registration_day"]
-            return new_review
+            review = self.get_specific_review(user_id, supplement_id)
+            return review
 
         elif user_id is not None:
-            reviews = self.reviews_dao.get_reviews_by_user_id(user_id, page)
-        elif supplement_id is not None:
-            reviews = self.reviews_dao.get_reviews_by_supplement_id(supplement_id, page)
+            reviews = self.get_reviews_by_user_id(user_id, page)
+            return reviews
 
+        else:
+            reviews = self.get_reviews_by_supplement_id(supplement_id, page)
+            return reviews
+
+    def get_specific_review(self, user_id, supplement_id):
+        review = self.reviews_dao.get_review(user_id, supplement_id)
+        user_avg_rating = self.reviews_dao.get_user_avg_rating(user_id)
+
+        if review is None:
+            return None
+
+        review_imgs = self.reviews_dao.get_review_imgs(review["id"])
+        new_review_imgs = []
+        for review_img in review_imgs:
+            new_review_imgs.append(review_img["img_url"])
+
+        new_review = to_camel_dict(review)
+        new_review["imgUrls"] = new_review_imgs
+        new_review["reviewId"] = review["id"]
+        new_review["registrationDay"] = review["registration_day"].strftime("%Y-%m-%d")
+        new_review["userAvgRating"] = user_avg_rating
+        return new_review
+
+    def get_reviews_by_user_id(self, user_id, page):
+        reviews = self.reviews_dao.get_reviews_by_user_id(user_id, page)
+        user_avg_rating = self.reviews_dao.get_user_avg_rating(user_id)
         new_reviews = []
         for review in reviews:
-            new_review = {}
-            new_review["supplementId"] = review[0]
-            new_review["supplementName"] = review[1]
-            new_review["companyName"] = review[2]
-            new_review["rating"] = review[3]
+            new_review = to_camel_dict(review)
+            new_review["reviewId"] = review["id"]
+            new_review["registrationDay"] = review["registration_day"].strftime(
+                "%Y-%m-%d"
+            )
+            new_review["userAvgRating"] = user_avg_rating
+            new_reviews.append(new_review)
+        return new_reviews
+
+    def get_reviews_by_supplement_id(self, supplement_id, page):
+        reviews = self.reviews_dao.get_reviews_by_supplement_id(supplement_id, page)
+        new_reviews = []
+        for review in reviews:
+            user_avg_rating = self.reviews_dao.get_user_avg_rating(review["user_id"])
+            new_review = to_camel_dict(review)
+            new_review["reviewId"] = review["id"]
+            new_review["registrationDay"] = review["registration_day"].strftime(
+                "%Y-%m-%d"
+            )
+            new_review["userAvgRating"] = user_avg_rating
             new_reviews.append(new_review)
         return new_reviews
 
