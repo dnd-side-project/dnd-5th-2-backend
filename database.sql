@@ -1,11 +1,11 @@
 ﻿CREATE TABLE `USERS` (
 	`id`	int	NOT NULL,
-	`username`	varchar(255)	NOT NULL,
+	`username`	varchar(255)	NULL,
 	`hashed_password`	varchar(255)	NOT NULL,
 	`email`	varchar(255)	NOT NULL,
 	`secret_key`	varchar(255)	NULL,
 	`gender`	varchar(255)	NULL,
-	`avg_rating`	float	NULL,
+	`avg_rating`	float	NULL	DEFAULT 0.0,
 	`age`	tinyint	NULL
 );
 
