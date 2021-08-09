@@ -157,6 +157,17 @@ class ReviewsDao:
             {"review_id": review_id, "img_url": img_url},
         )
 
+    def delete_img_url(self, review_id):
+        return self.db.execute(
+            text(
+                """
+                DELETE FROM REVIEW_IMGS
+                WHERE review_id = :review_id
+                """
+            ),
+            {"review_id": review_id},
+        )
+
     def get_user_avg_rating(self, user_id):
         return self.db.execute(
             text(

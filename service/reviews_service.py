@@ -7,8 +7,9 @@ from .utils import to_camel_dict
 
 
 class ReviewsService:
-    def __init__(self, reviews_dao):
+    def __init__(self, reviews_dao, s3):
         self.reviews_dao = reviews_dao
+        self.s3 = s3
 
     def get_review_id(self, user_id, supplement_id):
         review_id = self.reviews_dao.get_review_id(user_id, supplement_id)
@@ -87,10 +88,34 @@ class ReviewsService:
         return review_id
 
     def upload_review_imgs(self, review_id, review_imgs):
-        for img in review_imgs:
-            img_path = os.path.join(current_app.config["MEDIA_URL"], img.filename)
-            img.save(img_path)
-            self.reviews_dao.insert_img_url(review_id, img_path)
+        for i in range(len(review_imgs)):
+            img_url = f"review_imgs/{review_id}/{i}.jpg"
+            # AWS S3 이미지 업로드
+            self.s3.upload_fileobj(
+                review_imgs[i], current_app.config["BUCKET"], img_url
+            )
+            # 이미지 URL DB 추가
+            self.reviews_dao.insert_img_url(
+                review_id, current_app.config["MEDIA_URL"] + img_url
+            )
+        return None
+
+    def update_review_imgs(self, review_id, review_imgs):
+        self.delete_review_imgs(review_id)
+        self.upload_review_imgs(review_id, review_imgs)
+        return None
+
+    def delete_review_imgs(self, review_id):
+        # AWS S3 이미지 삭제
+        response = self.s3.list_objects_v2(
+            Bucket=current_app.config["BUCKET"], Prefix=f"review_imgs/{review_id}/"
+        )
+        for object in response["Contents"]:
+            self.s3.delete_object(
+                Bucket=current_app.config["BUCKET"], Key=object["Key"]
+            )
+        # 이미지 URL DB 삭제
+        self.reviews_dao.delete_img_url(review_id)
         return None
 
     def update_review(self, new_review):
@@ -106,7 +131,7 @@ class ReviewsService:
 
     def delete_review(self, user_id, supplement_id):
         review = self.get_review_id(user_id, supplement_id)
-        review_id = review[0]
-        imgs = self.reviews_dao.get_review_imgs(review_id)
+        review_id = review["id"]
+        self.delete_review_imgs(review_id)
         self.reviews_dao.delete_review(user_id, supplement_id)
         return None
