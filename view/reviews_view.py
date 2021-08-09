@@ -113,7 +113,7 @@ def create_reviews_blueprint(services):
             review = reviews_service.get_review_id(user_id, supplement_id)
             review_id = review[0]
             review_imgs = request.files.getlist("imgs")
-            reviews_service.upload_review_imgs(review_id, review_imgs)
+            reviews_service.update_review_imgs(review_id, review_imgs)
         return "", 200
 
     @reviews_bp.route("", methods=["DELETE"])

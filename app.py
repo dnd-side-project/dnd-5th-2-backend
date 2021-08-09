@@ -32,7 +32,7 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     database = create_engine(app.config["DB_URL"], encoding="utf-8", max_overflow=0)
-    s3 = boto3.resource(
+    s3 = boto3.client(
         "s3",
         aws_access_key_id=os.environ["S3_ACCESS_KEY"],
         aws_secret_access_key=os.environ["S3_SECRET_KEY"],
@@ -49,7 +49,7 @@ def create_app(test_config=None):
     services.auth_service = AuthService(auth_dao, app.config)
     services.supplements_service = SupplementsService(supplements_dao)
     services.user_service = UserService(user_dao)
-    services.reviews_service = ReviewsService(review_dao)
+    services.reviews_service = ReviewsService(review_dao, s3)
 
     # Presentation 레이어
     create_endpoints(app, services)
