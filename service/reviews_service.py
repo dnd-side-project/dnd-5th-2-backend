@@ -11,6 +11,9 @@ class ReviewsService:
         self.reviews_dao = reviews_dao
         self.s3 = s3
 
+    def exist_user(self, user_id):
+        return self.reviews_dao.exist_user(user_id)
+
     def get_review_id(self, user_id, supplement_id):
         review_id = self.reviews_dao.get_review_id(user_id, supplement_id)
         return review_id

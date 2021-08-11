@@ -6,6 +6,21 @@ class ReviewsDao:
     def __init__(self, database):
         self.db = database
 
+    def exist_user(self, user_id):
+        user = self.db.execute(
+            text(
+                """
+                SELECT id
+                FROM USERS
+                WHERE id = :user_id
+                """
+            ),
+            {"user_id": user_id},
+        ).fetchone()
+        if user is None:
+            return False
+        return True
+
     def get_review_id(self, user_id, supplement_id):
         return self.db.execute(
             text(
