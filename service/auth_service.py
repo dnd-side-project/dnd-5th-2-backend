@@ -29,7 +29,7 @@ class AuthService:
             new_user["password"].encode("UTF-8"), bcrypt.gensalt()
         )
         new_user["password"] = new_user["password"].decode("utf-8")
-        self.auth_dao.insert_user(new_user)
+        return self.auth_dao.insert_user(new_user)
 
     def login(self, user_info):
         email = user_info["email"]
@@ -69,8 +69,8 @@ class AuthService:
         user_id = self.auth_dao.get_id(email)
         return user_id["id"]
 
-    def check_having_temp_password(self, email):
-        temp_password = self.auth_dao.get_temp_password(email)
+    def check_having_temp_password(self, user_id):
+        temp_password = self.auth_dao.get_temp_password(user_id)
         if temp_password:
             return temp_password
         else:
@@ -81,14 +81,14 @@ class AuthService:
         self.auth_dao.insert_temp_password(email, temp_password)
 
     # 발급된 임시 비번 확인
-    def check_temp_password(self, email, user_temp_password):
-        temp_password = self.auth_dao.get_temp_password(email)
+    def check_temp_password(self, user_id, user_temp_password):
+        temp_password = self.auth_dao.get_temp_password(user_id)
         return user_temp_password == temp_password["temp_password"]
 
     def update_temp_password(self, email, temp_password):
         self.auth_dao.update_temp_password(email, temp_password)
 
     # 새로운 비번 삽입
-    def insert_new_password(self, email, new_password):
+    def insert_new_password(self, user_id, new_password):
         hashed_password = bcrypt.hashpw(new_password.encode("UTF-8"), bcrypt.gensalt())
-        self.auth_dao.insert_new_password(email, hashed_password)
+        self.auth_dao.insert_new_password(user_id, hashed_password)

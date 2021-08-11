@@ -24,14 +24,14 @@ class AuthDao:
 
     # 회원가입 시
     def insert_user(self, new_user):
-        self.db.execute(
+        return self.db.execute(
             text(
                 """
                 INSERT INTO USERS (email, username, gender, age, hashed_password)
                 VALUES (:email, :username, :gender, :age, :password)
                 """
             ),
-            new_user)
+            new_user).lastrowid
 
     # 로그인 시 갖고 있는 해시 비번 같은지 확인, 비밀번호 찾기 시 기존 비밀번호 확인
     def get_password(self, email):
@@ -82,16 +82,16 @@ class AuthDao:
         ), {'email': email, 'temp_password': temp_password})
 
     # 발급된 임시 비번 확인
-    def get_temp_password(self, email):
+    def get_temp_password(self, user_id):
         return self.db.execute(text(
             """
             SELECT temp_password FROM TEMP_PW
             WHERE (
                 (SELECT id FROM USERS
-                WHERE email=:email) = user_id
+                WHERE id=:user_id) = user_id
             )
             """
-        ), {"email": email}).fetchone()
+        ), {"user_id": user_id}).fetchone()
 
     def update_temp_password(self, email, temp_password):
         self.db.execute(text(
@@ -105,10 +105,10 @@ class AuthDao:
         ), {"email": email, "temp_password": temp_password})
 
     # 새로운 비번 삽입
-    def insert_new_password(self, email, hashed_password):
+    def insert_new_password(self, user_id, hashed_password):
         self.db.execute(text(
             """
             UPDATE USERS SET hashed_password = ":hashed_password"
-            WHERE email=:email
+            WHERE id=:user_id
             """
-        ), {'email': email, 'hashed_password': hashed_password})
+        ), {'user_id': user_id, 'hashed_password': hashed_password})

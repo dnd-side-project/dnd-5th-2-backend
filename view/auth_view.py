@@ -49,10 +49,10 @@ def create_auth_blueprint(services):
             if auth_service.check_username(new_user) is not None:
                 return jsonify({'message': "중복된 닉네임입니다."}), 409
             else:
-                auth_service.create_new_user(new_user)
-                user_info = user_service.get_user(new_user["username"])
+                user_id = auth_service.create_new_user(new_user)
+                user_info = user_service.get_user(user_id)
                 return user_info
-
+        
     @auth_bp.route("/login", methods=['POST'])
     def login():
         user_info = request.json
@@ -80,6 +80,8 @@ def create_auth_blueprint(services):
     @login_required
     def generate_tmp_pw():
         email = request.json["email"]
+        user_id = g.user_id
+
         various_s = string.ascii_letters + string.digits
         while True:
             temp_password = ''.join(secrets.choice(various_s) for _ in range(10))
@@ -89,7 +91,7 @@ def create_auth_blueprint(services):
                 and sum(c.isdigit() for c in temp_password) >= 3):
                 break
         
-        if auth_service.check_having_temp_password(email) is not None:
+        if auth_service.check_having_temp_password(user_id) is not None:
             auth_service.update_temp_password(email, temp_password)
         else:
             auth_service.insert_temp_password(email, temp_password)
@@ -102,10 +104,11 @@ def create_auth_blueprint(services):
     @login_required
     def reset_password():
         user_info = request.json
-
+        user_id = g.user_id
+        
         # 발급된 임시 비번 확인
-        if auth_service.check_temp_password(user_info["email"], user_info["tmpPassword"]):
-            auth_service.insert_new_password(user_info["email"], user_info["newPassword"])
+        if auth_service.check_temp_password(user_id, user_info["tmpPassword"]):
+            auth_service.insert_new_password(user_id, user_info["newPassword"])
             return jsonify({"message": "비밀번호가 변경되었습니다."})
         else:
             return jsonify({"message": "임시 비밀번호가 틀렸습니다."}), 403

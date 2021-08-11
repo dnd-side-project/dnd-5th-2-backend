@@ -39,8 +39,8 @@ def create_user_blueprint(services):
     @user_bp.route("/", methods=["GET"])
     @login_required
     def get_user():
-        user_name = request.args.get("username")
-        return user_service.get_user(user_name)
+        user_id = g.user_id
+        return user_service.get_user(user_id)
 
     @user_bp.route("", methods=["PUT"])
     @login_required
@@ -59,8 +59,8 @@ def create_user_blueprint(services):
     @user_bp.route("/wishlist", methods=["GET"])
     @login_required
     def get_wishlist():
-        email = request.args.get("email")
-        user_wishlist = user_service.get_wishlist(email)
+        user_id = g.user_id
+        user_wishlist = user_service.get_wishlist(user_id)
         if user_wishlist is not None:
             return user_wishlist
         else:
@@ -71,25 +71,28 @@ def create_user_blueprint(services):
     @login_required
     def insert_wishlist():
         user_info = request.json
-        user_service.insert_wishlist(user_info)
+        user_id = g.user_id
+        user_service.insert_wishlist(user_id,user_info["supplementId"])
         return "", 200
 
     @user_bp.route("/wishlist", methods=["DELETE"])
     @login_required
     def delete_wishlist():
         user_info = request.json
-        user_service.delete_wishlist(user_info)
+        user_id = g.user_id
+        user_service.delete_wishlist(user_id, user_info["supplementId"])
         return jsonify({"message": "삭제되었습니다."})
 
     @user_bp.route("/type", methods=["POST"])
     @login_required
     def insert_type():
         user_info = request.json
-        if user_service.check_user_type(user_info) is not None:
-            user_service.delete_type(user_info)
+        user_id = g.user_id
+        if user_service.check_user_type(user_id) is not None:
+            user_service.delete_type(user_id)
         type_list = user_info["type"].split(",")
         for user_type in type_list:
-            user_service.insert_type(user_info["email"], user_type)
+            user_service.insert_type(user_id, user_type)
         return "", 200
 
     return user_bp
