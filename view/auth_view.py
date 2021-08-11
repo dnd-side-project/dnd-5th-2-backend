@@ -1,16 +1,11 @@
 import string
 import secrets
 from functools import wraps
-import os
-import sys
-
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from flask import Blueprint, request, jsonify, Response, g
 import jwt
 
-import mail
-
+from .utils import send_mail
 
 
 def create_auth_blueprint(services):
@@ -99,7 +94,7 @@ def create_auth_blueprint(services):
         else:
             auth_service.insert_temp_password(email, temp_password)
         
-        mail.send_mail(email, temp_password)
+        send_mail(email, temp_password)
         return jsonify({"message": "임시 비밀번호가 전송되었습니다."})
 
 
