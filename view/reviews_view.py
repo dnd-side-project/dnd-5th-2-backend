@@ -98,7 +98,7 @@ def create_reviews_blueprint(services):
     def update_review():
         user_id = g.user_id
         supplement_id = request.form.get("supplementId")
-        review = reviews_service.get_reviews(user_id, supplement_id)
+        review = reviews_service.get_review_id(user_id, supplement_id)
         if review is None:
             return "존재하지 않는 리뷰입니다", 404
 

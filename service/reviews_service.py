@@ -132,6 +132,7 @@ class ReviewsService:
     def delete_review(self, user_id, supplement_id):
         review = self.get_review_id(user_id, supplement_id)
         review_id = review["id"]
-        self.delete_review_imgs(review_id)
+        if self.reviews_dao.has_img(review_id):
+            self.delete_review_imgs(review_id)
         self.reviews_dao.delete_review(user_id, supplement_id)
         return None
