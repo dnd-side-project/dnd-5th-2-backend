@@ -179,3 +179,18 @@ class ReviewsDao:
             ),
             {"user_id": user_id},
         ).fetchone()["avg_rating"]
+
+    def has_img(self, review_id):
+        count = self.db.execute(
+            text(
+                """
+                SELECT COUNT(*) as count
+                FROM REVIEW_IMGS
+                WHERE review_id = :review_id
+                """
+            ),
+            {"review_id": review_id},
+        ).fetchone()["count"]
+        if count == 0:
+            return False
+        return True
