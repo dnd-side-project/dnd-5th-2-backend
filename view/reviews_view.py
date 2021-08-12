@@ -52,6 +52,8 @@ def create_reviews_blueprint(services):
 
         if user_id is not None and not user_id.isnumeric():
             return "잘못된 사용자 ID 입니다", 400
+        if reviews_service.exist_user(int(user_id)) is False:
+            return "존재하지 않는 사용자 입니다", 404
         if supplement_id is not None and not supplement_id.isnumeric():
             return "잘못된 영양제 ID 입니다", 400
         if page is not None and page.isnumeric() is False:
