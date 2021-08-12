@@ -40,18 +40,27 @@ def create_auth_blueprint(services):
             return f(*args, **kwargs)
         return decorated_function
 
+    @auth_bp.route("/signup-email", methods=["POST"])
+    def signup_email():
+        new_user = request.json
+        if auth_service.check_email(new_user) is not None:
+            return jsonify({"exists": True})
+        else:
+            return jsonify({"exists": False})
+
+    @auth_bp.route("/signup-username", methods=["POST"])
+    def signup_user_name():
+        new_user = request.json
+        if auth_service.check_username(new_user) is not None:
+            return jsonify({"exists": True})
+        else:
+            return jsonify({"exists": False})
+
     @auth_bp.route("/signup", methods=["POST"])
     def signup():
         new_user = request.json
-        if auth_service.check_email(new_user) is not None:
-            return jsonify({'message': "이메일이 존재합니다."}), 409
-        else:
-            if auth_service.check_username(new_user) is not None:
-                return jsonify({'message': "중복된 닉네임입니다."}), 409
-            else:
-                user_id = auth_service.create_new_user(new_user)
-                user_info = user_service.get_user(user_id)
-                return user_info
+        auth_service.create_new_user(new_user)
+        return jsonify({"message": "회원가입 되었습니다."})
         
     @auth_bp.route("/login", methods=['POST'])
     def login():
@@ -66,9 +75,10 @@ def create_auth_blueprint(services):
                 token = auth_service.generate_access_token(
                     user_id, secret_key)
 
-                return jsonify({
-                    'access_token': token
-                })
+                user_info = user_service.get_user(user_id)
+                user_info["token"] = token
+
+                return user_info
             else:
                 return jsonify({"message": "비밀번호가 틀렸습니다."}), 403
         else:

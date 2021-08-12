@@ -27,6 +27,15 @@ class UserDao:
             """
         ), {'username': username}).fetchone()
 
+    def edit_user(self, user_info):
+        self.db.execute(text(
+            """
+            UPDATE USERS
+            SET username=:username, gender=:gender, age=:age
+            WHERE email=:email
+            """
+        ), user_info)
+
     ################ 위시리스트 ################
     def get_wishlist(self, user_id):
         return self.db.execute(text(
@@ -85,15 +94,6 @@ class UserDao:
             )
             """
         ), {'user_id': user_id})
-
-    def edit_user(self, user_info):
-        self.db.execute(text(
-            """
-            UPDATE USERS
-            SET username=:username, gender=:gender, age=:age
-            WHERE email=:email
-            """
-        ), user_info)
 
     def edit_type(self, user_info):
         self.db.execute(text(
