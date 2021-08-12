@@ -8,9 +8,7 @@ class UserService:
         return user_info
 
     def edit_user(self, user_info):
-        self.user_dao.delete_type(user_info)
         self.user_dao.edit_user(user_info)
-        self.user_dao.edit_type(user_info)
 
     def get_other_user(self, username):
         other_user_info = self.user_dao.get_other_user(username)

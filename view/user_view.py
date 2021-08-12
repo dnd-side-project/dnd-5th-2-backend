@@ -73,7 +73,7 @@ def create_user_blueprint(services):
         user_info = request.json
         user_id = g.user_id
         user_service.insert_wishlist(user_id,user_info["supplementId"])
-        return "", 200
+        return jsonify({"message": "영양제가 추가되었습니다."})
 
     @user_bp.route("/wishlist", methods=["DELETE"])
     @login_required
@@ -93,6 +93,8 @@ def create_user_blueprint(services):
         type_list = user_info["type"].split(",")
         for user_type in type_list:
             user_service.insert_type(user_id, user_type)
-        return "", 200
+
+        user_info = user_service.get_user(user_id)
+        return user_info
 
     return user_bp
