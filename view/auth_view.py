@@ -77,7 +77,7 @@ def create_auth_blueprint(services):
 
                 user_info = user_service.get_user(user_id)
 
-                return jsonify({"user": user_info},{"token": token})
+                return jsonify({"user": user_info,"token": token})
             else:
                 return jsonify({"message": "비밀번호가 틀렸습니다."}), 403
         else:
