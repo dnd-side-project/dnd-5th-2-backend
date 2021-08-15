@@ -116,8 +116,8 @@ def create_auth_blueprint(services):
         user_id = g.user_id
         
         # 발급된 임시 비번 확인
-        if auth_service.check_temp_password(user_id, user_info["tmpPassword"]):
-            auth_service.insert_new_password(user_id, user_info["newPassword"])
+        if auth_service.check_temp_password(user_id, user_info["tmp_password"]):
+            auth_service.insert_new_password(user_id, user_info["new_password"])
             return jsonify({"message": "비밀번호가 변경되었습니다."})
         else:
             return jsonify({"message": "임시 비밀번호가 틀렸습니다."}), 403
