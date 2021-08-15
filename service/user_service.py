@@ -1,14 +1,11 @@
-from .utils import to_camel_dict
-
-
 class UserService:
     def __init__(self, user_dao):
         self.user_dao = user_dao
 
     def get_user(self, user_id):
         user_info = self.user_dao.get_user(user_id)
-        camel_user_info = to_camel_dict(user_info)
-        return camel_user_info
+        user_info = user_info._asdict()
+        return user_info
 
     def edit_user(self, user_info):
         self.user_dao.edit_user(user_info)

@@ -90,7 +90,7 @@ def create_user_blueprint(services):
         user_id = g.user_id
         if user_service.check_user_type(user_id) is not None:
             user_service.delete_type(user_id)
-        type_list = user_info["typeName"].split(",")
+        type_list = user_info["type_name"].split(",")
         for user_type in type_list:
             user_service.insert_type(user_id, user_type)
             
