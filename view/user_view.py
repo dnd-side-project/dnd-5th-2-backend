@@ -72,7 +72,7 @@ def create_user_blueprint(services):
     def insert_wishlist():
         user_info = request.json
         user_id = g.user_id
-        user_service.insert_wishlist(user_id,user_info["supplementId"])
+        user_service.insert_wishlist(user_id,user_info["supplement_id"])
         return jsonify({"message": "영양제가 추가되었습니다."})
 
     @user_bp.route("/wishlist", methods=["DELETE"])
@@ -80,7 +80,7 @@ def create_user_blueprint(services):
     def delete_wishlist():
         user_info = request.json
         user_id = g.user_id
-        user_service.delete_wishlist(user_id, user_info["supplementId"])
+        user_service.delete_wishlist(user_id, user_info["supplement_id"])
         return jsonify({"message": "삭제되었습니다."})
 
     @user_bp.route("/type", methods=["POST"])

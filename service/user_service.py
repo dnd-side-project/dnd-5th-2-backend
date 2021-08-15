@@ -23,11 +23,11 @@ class UserService:
             for item in user_wishlist:
                 i += 1
                 wish_dict = {}
-                wish_dict["supplementId"] = item[0]
-                wish_dict["supplementName"] = item[1]
-                wish_dict["companyName"] = item[2]
+                wish_dict["supplement_id"] = item[0]
+                wish_dict["supplement_name"] = item[1]
+                wish_dict["company_name"] = item[2]
                 wish_dict["appearance"] = item[3]
-                wish_dict["avgRating"] = item[4]
+                wish_dict["avg_rating"] = item[4]
                 wish_result[i] = wish_dict
             return wish_result
         else:
