@@ -17,7 +17,7 @@ def create_supplements_blueprint(services):
     def search():
         get_arg = request.args.get
         supplement_name = get_arg("supplementName")
-        type = get_arg("type")
+        type = get_arg("type_tag")
         tag = get_arg("tag")
         page = get_arg("page")
 

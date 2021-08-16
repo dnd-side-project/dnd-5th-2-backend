@@ -37,7 +37,13 @@ class ReviewsDao:
         return self.db.execute(
             text(
                 """
-                    SELECT *
+                    SELECT 
+                        id, 
+                        rating, 
+                        text, 
+                        DATE_FORMAT(registration_day, "%Y-%m-%d") AS registration_day, 
+                        user_id, 
+                        supplement_id
                     FROM REVIEWS
                     WHERE user_id = :user_id AND supplement_id = :supplement_id
                     """
@@ -49,7 +55,13 @@ class ReviewsDao:
         return self.db.execute(
             text(
                 """
-                SELECT *
+                SELECT                         
+                    id, 
+                    rating, 
+                    text, 
+                    DATE_FORMAT(registration_day, "%Y-%m-%d") AS registration_day, 
+                    user_id, 
+                    supplement_id
                 FROM REVIEWS
                 WHERE user_id = :user_id 
                 LIMIT :PAGE_SIZE OFFSET :page
@@ -66,7 +78,13 @@ class ReviewsDao:
         return self.db.execute(
             text(
                 """
-                 SELECT *
+                SELECT 
+                    id, 
+                    rating, 
+                    text, 
+                    DATE_FORMAT(registration_day, "%Y-%m-%d") AS registration_day, 
+                    user_id, 
+                    supplement_id
                 FROM REVIEWS
                 WHERE supplement_id = :supplement_id
                 LIMIT :PAGE_SIZE OFFSET :page
