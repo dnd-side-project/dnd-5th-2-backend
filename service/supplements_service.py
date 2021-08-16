@@ -1,6 +1,3 @@
-from .utils import to_camel_dict
-
-
 class SupplementsService:
     def __init__(self, supplements_dao):
         self.supplements_dao = supplements_dao
@@ -9,9 +6,10 @@ class SupplementsService:
         data = self.supplements_dao.get(supplement_id)
         if data is None:
             return None
-        camel_data = to_camel_dict(data)
-        camel_data["supplementId"] = data["id"]
-        return camel_data
+        data = data._asdict()
+        data["supplement_id"] = data["id"]
+        data.pop("id")
+        return data
 
     def search(self, supplement_name, type, tag, page):
         # 제품명 검색
@@ -27,12 +25,11 @@ class SupplementsService:
         if tag is not None:
             results = self.supplements_dao.search_by_tag(tag, page)
 
-        new_results = []
+        results = [result._asdict() for result in results]
         for result in results:
-            new_result = to_camel_dict(result)
-            new_result["supplementId"] = result["id"]
-            new_results.append(new_result)
-        return new_results
+            result["supplement_id"] = result["id"]
+            result.pop("id")
+        return results
 
     def exists_type(self, type):
         data = self.supplements_dao.get_type(type)

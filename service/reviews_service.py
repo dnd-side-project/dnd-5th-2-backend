@@ -3,8 +3,6 @@ import os
 from datetime import date
 from flask import current_app
 
-from .utils import to_camel_dict
-
 
 class ReviewsService:
     def __init__(self, reviews_dao, s3):
@@ -39,44 +37,40 @@ class ReviewsService:
             return None
 
         review_imgs = self.reviews_dao.get_review_imgs(review["id"])
-        new_review_imgs = []
-        for review_img in review_imgs:
-            new_review_imgs.append(review_img["img_url"])
+        review_imgs = [review_img["img_url"] for review_img in review_imgs]
 
-        new_review = to_camel_dict(review)
-        new_review["imgUrls"] = new_review_imgs
-        new_review["reviewId"] = review["id"]
-        new_review["registrationDay"] = review["registration_day"].strftime("%Y-%m-%d")
-        new_review["userAvgRating"] = user_avg_rating
-        return new_review
+        review = review._asdict()
+        review["img_urls"] = review_imgs
+        review["user_avg_rating"] = user_avg_rating
+        review["review_id"] = review["id"]
+        review.pop("id")
+        return review
 
     def get_reviews_by_user_id(self, user_id, page):
         reviews = self.reviews_dao.get_reviews_by_user_id(user_id, page)
+        reviews = [review._asdict() for review in reviews]
         user_avg_rating = self.reviews_dao.get_user_avg_rating(user_id)
-        new_reviews = []
         for review in reviews:
-            new_review = to_camel_dict(review)
-            new_review["reviewId"] = review["id"]
-            new_review["registrationDay"] = review["registration_day"].strftime(
-                "%Y-%m-%d"
-            )
-            new_review["userAvgRating"] = user_avg_rating
-            new_reviews.append(new_review)
-        return new_reviews
+            review_imgs = self.reviews_dao.get_review_imgs(review["id"])
+            review_imgs = [review_img["img_url"] for review_img in review_imgs]
+            review["img_urls"] = review_imgs
+            review["review_id"] = review["id"]
+            review.pop("id")
+            review["user_avg_rating"] = user_avg_rating
+        return reviews
 
     def get_reviews_by_supplement_id(self, supplement_id, page):
         reviews = self.reviews_dao.get_reviews_by_supplement_id(supplement_id, page)
-        new_reviews = []
+        reviews = [review._asdict() for review in reviews]
         for review in reviews:
+            review_imgs = self.reviews_dao.get_review_imgs(review["id"])
+            review_imgs = [review_img["img_url"] for review_img in review_imgs]
+            review["img_urls"] = review_imgs
+            review["review_id"] = review["id"]
+            review.pop("id")
             user_avg_rating = self.reviews_dao.get_user_avg_rating(review["user_id"])
-            new_review = to_camel_dict(review)
-            new_review["reviewId"] = review["id"]
-            new_review["registrationDay"] = review["registration_day"].strftime(
-                "%Y-%m-%d"
-            )
-            new_review["userAvgRating"] = user_avg_rating
-            new_reviews.append(new_review)
-        return new_reviews
+            review["user_avg_rating"] = user_avg_rating
+        return reviews
 
     def create_review(self, new_review):
         new_review["registration_day"] = date.today().strftime("%Y-%m-%d")
