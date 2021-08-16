@@ -4,8 +4,21 @@ class UserService:
 
     def get_user(self, user_id):
         user_info = self.user_dao.get_user(user_id)
-        user_info = user_info._asdict()
-        return user_info
+
+        user_result = {}
+        i = 0
+        for item in user_info:
+            if i < 1:
+                user_result["user_name"] = item[0]
+                user_result["email"] = item[1]
+                user_result["gender"] = item[2]
+                user_result["age"] = item[3]
+                user_result["type_name"] = [item[4]]
+            else:
+                user_result["type_name"] += [item[4]]
+            i += 1
+            
+        return user_result
 
     def edit_user(self, user_info):
         self.user_dao.edit_user(user_info)
