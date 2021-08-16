@@ -4,7 +4,6 @@ class UserService:
 
     def get_user(self, user_id):
         user_info = self.user_dao.get_user(user_id)
-        # [('지현', 'jhiya7420@naver.com', '여성', 20, '간 건강'), ('지현', 'jhiya7420@naver.com', '여성', 20, '위 건강')]
 
         user_result = {}
         i = 0
