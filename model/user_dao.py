@@ -14,7 +14,7 @@ class UserDao:
             ON USERS.id = USER_TYPE.user_id
             WHERE USERS.id=:user_id
             """
-        ), {'user_id': user_id}).fetchone()
+        ), {'user_id': user_id}).fetchall()
 
     def get_other_user(self, username):
         return self.db.execute(text(
