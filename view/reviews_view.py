@@ -51,13 +51,13 @@ def create_reviews_blueprint(services):
         page = get_args("page")
 
         if user_id is not None and not user_id.isnumeric():
-            return "잘못된 사용자 ID 입니다", 400
+            return jsonify({"message": "잘못된 사용자 ID 입니다"}), 400
         if user_id is not None and reviews_service.exist_user(int(user_id)) is False:
-            return "존재하지 않는 사용자 입니다", 404
+            return jsonify({"message": "존재하지 않는 사용자 입니다"}), 404
         if supplement_id is not None and not supplement_id.isnumeric():
-            return "잘못된 영양제 ID 입니다", 400
+            return jsonify({"message": "잘못된 영양제 ID 입니다"}), 400
         if page is not None and page.isnumeric() is False:
-            return "잘못된 페이지 숫자 입니다", 400
+            return jsonify({"message": "잘못된 페이지 숫자 입니다"}), 400
 
         if user_id is not None:
             user_id = int(user_id)
@@ -71,7 +71,7 @@ def create_reviews_blueprint(services):
         reviews = reviews_service.get_reviews(user_id, supplement_id, page)
 
         if reviews is None:
-            return "리뷰가 존재하지 않습니다", 404
+            return jsonify({"message": "리뷰가 존재하지 않습니다"}), 404
         return jsonify(reviews)
 
     @reviews_bp.route("", methods=["POST"])
@@ -81,7 +81,7 @@ def create_reviews_blueprint(services):
         supplement_id = request.form.get("supplement_id")
         review = reviews_service.get_review_id(user_id, supplement_id)
         if review is not None:
-            return "리뷰가 이미 존재합니다", 409
+            return jsonify({"message": "리뷰가 이미 존재합니다"}), 409
 
         new_review = {}
         new_review["user_id"] = user_id
@@ -102,7 +102,7 @@ def create_reviews_blueprint(services):
         supplement_id = request.form.get("supplement_id")
         review = reviews_service.get_review_id(user_id, supplement_id)
         if review is None:
-            return "존재하지 않는 리뷰입니다", 404
+            return jsonify({"message": "존재하지 않는 리뷰입니다"}), 404
 
         new_review = {}
         new_review["user_id"] = user_id
@@ -128,7 +128,7 @@ def create_reviews_blueprint(services):
         review = reviews_service.get_reviews(user_id, supplement_id, page)
 
         if review is None:
-            return "존재하지 않는 리뷰입니다", 404
+            return jsonify({"message": "존재하지 않는 리뷰입니다"}), 404
 
         reviews_service.delete_review(user_id, supplement_id)
         return "", 200

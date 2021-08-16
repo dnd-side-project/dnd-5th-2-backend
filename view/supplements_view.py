@@ -10,7 +10,7 @@ def create_supplements_blueprint(services):
     def info(supplement_id):
         info = supplements_service.get(supplement_id)
         if info is None:
-            return "존재하지 않는 영양제입니다", 404
+            return jsonify({"message": "존재하지 않는 영양제입니다"}), 404
         return jsonify(info)
 
     @supplements_bp.route("/search", methods=["GET"])
@@ -22,13 +22,13 @@ def create_supplements_blueprint(services):
         page = get_arg("page")
 
         if type is not None and supplements_service.exists_type(type) is False:
-            return "존재하지 않는 타입입니다", 404
+            return jsonify({"message": "존재하지 않는 타입입니다"}), 404
         if tag is not None and supplements_service.exists_tag(tag) is False:
-            return "존재하지 않는 기능입니다", 404
+            return jsonify({"message": "존재하지 않는 기능입니다"}), 404
         if page is None:
             page = "1"
         if page.isnumeric() is False:
-            return "잘못된 페이지 숫자 입니다", 400
+            return jsonify({"message": "잘못된 페이지 숫자 입니다"}), 400
 
         # page를 제외한 arg는 한번에 하나만 요청 가능
         arg_count = 0
@@ -36,7 +36,7 @@ def create_supplements_blueprint(services):
             if arg is not None:
                 arg_count += 1
         if arg_count > 1 or arg_count == 0:
-            return "잘못된 요청입니다", 400
+            return jsonify({"message": "잘못된 요청입니다"}), 400
 
         page = int(page)
         results = supplements_service.search(supplement_name, type, tag, page)
