@@ -51,7 +51,7 @@ class ReviewsDao:
             {"user_id": user_id, "supplement_id": supplement_id},
         ).fetchone()
 
-    def get_reviews_by_user_id(self, user_id, page):
+    def get_reviews_by_user_id(self, user_id, page_size, page):
         return self.db.execute(
             text(
                 """
@@ -64,17 +64,17 @@ class ReviewsDao:
                     supplement_id
                 FROM REVIEWS
                 WHERE user_id = :user_id 
-                LIMIT :PAGE_SIZE OFFSET :page
+                LIMIT :page_size OFFSET :page
                  """
             ),
             {
                 "user_id": user_id,
-                "PAGE_SIZE": current_app.config["PAGE_SIZE"],
+                "page_size": page_size,
                 "page": page - 1,
             },
         ).fetchall()
 
-    def get_reviews_by_supplement_id(self, supplement_id, page):
+    def get_reviews_by_supplement_id(self, supplement_id, page_size, page):
         return self.db.execute(
             text(
                 """
@@ -87,12 +87,12 @@ class ReviewsDao:
                     supplement_id
                 FROM REVIEWS
                 WHERE supplement_id = :supplement_id
-                LIMIT :PAGE_SIZE OFFSET :page
+                LIMIT :page_size OFFSET :page
                 """
             ),
             {
                 "supplement_id": supplement_id,
-                "PAGE_SIZE": current_app.config["PAGE_SIZE"],
+                "page_size": page_size,
                 "page": page - 1,
             },
         ).fetchall()

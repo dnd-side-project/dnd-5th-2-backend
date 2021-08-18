@@ -19,12 +19,17 @@ def create_supplements_blueprint(services):
         supplement_name = get_arg("supplementName")
         type = get_arg("type_tag")
         tag = get_arg("tag")
+        page_size = get_arg("limit")
         page = get_arg("page")
 
         if type is not None and supplements_service.exists_type(type) is False:
             return jsonify({"message": "존재하지 않는 타입입니다"}), 404
         if tag is not None and supplements_service.exists_tag(tag) is False:
             return jsonify({"message": "존재하지 않는 기능입니다"}), 404
+        if page_size is None:
+            page_size = "10"
+        if page_size.isnumeric() is False:
+            return jsonify({"message": "잘못된 페이지 크기 입니다"}), 400
         if page is None:
             page = "1"
         if page.isnumeric() is False:
@@ -38,8 +43,11 @@ def create_supplements_blueprint(services):
         if arg_count > 1 or arg_count == 0:
             return jsonify({"message": "잘못된 요청입니다"}), 400
 
+        page_size = int(page_size)
         page = int(page)
-        results = supplements_service.search(supplement_name, type, tag, page)
+        results = supplements_service.search(
+            supplement_name, type, tag, page_size, page
+        )
         return jsonify(results)
 
     return supplements_bp

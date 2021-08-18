@@ -16,17 +16,17 @@ class ReviewsService:
         review_id = self.reviews_dao.get_review_id(user_id, supplement_id)
         return review_id
 
-    def get_reviews(self, user_id, supplement_id, page):
+    def get_reviews(self, user_id, supplement_id, page_size, page):
         if user_id is not None and supplement_id is not None:
             review = self.get_specific_review(user_id, supplement_id)
             return review
 
         elif user_id is not None:
-            reviews = self.get_reviews_by_user_id(user_id, page)
+            reviews = self.get_reviews_by_user_id(user_id, page_size, page)
             return reviews
 
         else:
-            reviews = self.get_reviews_by_supplement_id(supplement_id, page)
+            reviews = self.get_reviews_by_supplement_id(supplement_id, page_size, page)
             return reviews
 
     def get_specific_review(self, user_id, supplement_id):
@@ -46,8 +46,8 @@ class ReviewsService:
         review.pop("id")
         return review
 
-    def get_reviews_by_user_id(self, user_id, page):
-        reviews = self.reviews_dao.get_reviews_by_user_id(user_id, page)
+    def get_reviews_by_user_id(self, user_id, page_size, page):
+        reviews = self.reviews_dao.get_reviews_by_user_id(user_id, page_size, page)
         reviews = [review._asdict() for review in reviews]
         user_avg_rating = self.reviews_dao.get_user_avg_rating(user_id)
         for review in reviews:
@@ -59,8 +59,10 @@ class ReviewsService:
             review["user_avg_rating"] = user_avg_rating
         return reviews
 
-    def get_reviews_by_supplement_id(self, supplement_id, page):
-        reviews = self.reviews_dao.get_reviews_by_supplement_id(supplement_id, page)
+    def get_reviews_by_supplement_id(self, supplement_id, page_size, page):
+        reviews = self.reviews_dao.get_reviews_by_supplement_id(
+            supplement_id, page_size, page
+        )
         reviews = [review._asdict() for review in reviews]
         for review in reviews:
             review_imgs = self.reviews_dao.get_review_imgs(review["id"])
