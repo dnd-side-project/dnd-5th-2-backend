@@ -11,19 +11,21 @@ class SupplementsService:
         data.pop("id")
         return data
 
-    def search(self, supplement_name, type, tag, page):
+    def search(self, supplement_name, type, tag, page_size, page):
         # 제품명 검색
         if supplement_name is not None:
-            results = self.supplements_dao.search_by_name(supplement_name, page)
+            results = self.supplements_dao.search_by_name(
+                supplement_name, page_size, page
+            )
 
         # 유형별 검색
         if type is not None:
             tags = [tag["tag_name"] for tag in self.supplements_dao.get_type_tags(type)]
-            results = self.supplements_dao.search_by_tags(tags, page)
+            results = self.supplements_dao.search_by_tags(tags, page_size, page)
 
         # 기능별 검색
         if tag is not None:
-            results = self.supplements_dao.search_by_tag(tag, page)
+            results = self.supplements_dao.search_by_tag(tag, page_size, page)
 
         results = [result._asdict() for result in results]
         for result in results:

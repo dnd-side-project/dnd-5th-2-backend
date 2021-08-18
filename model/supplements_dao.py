@@ -18,24 +18,24 @@ class SupplementsDao:
             {"supplement_id": supplement_id},
         ).fetchone()
 
-    def search_by_name(self, supplement_name, page):
+    def search_by_name(self, supplement_name, page_size, page):
         return self.db.execute(
             text(
                 """
                 SELECT *
                 FROM SUPPLEMENTS
                 WHERE supplement_name LIKE :supplement_name
-                LIMIT :PAGE_SIZE OFFSET :page
+                LIMIT :page_size OFFSET :page
                 """
             ),
             {
                 "supplement_name": "%" + supplement_name + "%",
-                "PAGE_SIZE": current_app.config["PAGE_SIZE"],
+                "page_size": page_size,
                 "page": page,
             },
         ).fetchall()
 
-    def search_by_tag(self, tag, page):
+    def search_by_tag(self, tag, page_size, page):
         return self.db.execute(
             text(
                 """
@@ -44,17 +44,17 @@ class SupplementsDao:
                 LEFT JOIN SUPPLEMENT_TAGS 
                 ON SUPPLEMENTS.id = SUPPLEMENT_TAGS.supplement_id
                 WHERE SUPPLEMENT_TAGS.tag_name = :tag
-                LIMIT :PAGE_SIZE OFFSET :page
+                LIMIT :page_size OFFSET :page
                 """
             ),
             {
                 "tag": tag,
-                "PAGE_SIZE": current_app.config["PAGE_SIZE"],
+                "page_size": page_size,
                 "page": page,
             },
         ).fetchall()
 
-    def search_by_tags(self, tags, page):
+    def search_by_tags(self, tags, page_size, page):
         tags_string = ""
         for i in range(len(tags)):
             tags_string += '"' + tags[i] + '"'
@@ -74,11 +74,11 @@ class SupplementsDao:
                 + tags_string
                 + ")"
                 + """
-                LIMIT :PAGE_SIZE OFFSET :page
+                LIMIT :page_size OFFSET :page
                 """
             ),
             {
-                "PAGE_SIZE": current_app.config["PAGE_SIZE"],
+                "page_size": page_size,
                 "page": page,
             },
         ).fetchall()
