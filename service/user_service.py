@@ -9,7 +9,7 @@ class UserService:
         i = 0
         for item in user_info:
             if i < 1:
-                user_result["user_name"] = item[0]
+                user_result["username"] = item[0]
                 user_result["email"] = item[1]
                 user_result["gender"] = item[2]
                 user_result["age"] = item[3]
